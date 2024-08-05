@@ -18,7 +18,7 @@ export default function HomeScreen({ navigation }) {
       <View style={styles.user}>
         <FontAwesome
           name="user"
-          //   onPress={() => dispatch(addUser(data.name))}
+          //   onPress={() => dispat
           size={25}
           color="#C1DBF0"
         />
