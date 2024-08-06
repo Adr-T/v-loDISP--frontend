@@ -3061,6 +3061,11 @@ expo-keep-awake@~13.0.2:
   resolved "https://registry.yarnpkg.com/expo-keep-awake/-/expo-keep-awake-13.0.2.tgz#5ef31311a339671eec9921b934fdd90ab9652b0e"
   integrity sha512-kKiwkVg/bY0AJ5q1Pxnm/GvpeB6hbNJhcFsoOWDh2NlpibhCLaHL826KHUM+WsnJRbVRxJ+K9vbPRHEMvFpVyw==
 
+expo-location@^17.0.1:
+  version "17.0.1"
+  resolved "https://registry.yarnpkg.com/expo-location/-/expo-location-17.0.1.tgz#3bdbf91066f1a40ec3468dc1807f3e106473f74c"
+  integrity sha512-m+OzotzlAXO3ZZ1uqW5GC25nXW868zN+ROyBA1V4VF6jGay1ZEs4URPglCVUDzZby2F5wt24cMzqDKw2IX6nRw==
+
 expo-modules-autolinking@1.11.1:
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/expo-modules-autolinking/-/expo-modules-autolinking-1.11.1.tgz#4a867f727d9dfde07de8dde14b333a3cbf82ce3c"
@@ -5368,6 +5373,11 @@ react-is@^17.0.1:
   version "17.0.2"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
+
+react-native-get-location@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/react-native-get-location/-/react-native-get-location-5.0.0.tgz#06c9e94336a76a47af446605cc0bd25cab3a2ba1"
+  integrity sha512-IzedYG98V45Z4suLl7GTLZGH+ujn0uvSGP6E5wpJbW/oySHPNJXJUCIFgK2RLhKOClPn/uWBJMvNd7h4ttz3QA==
 
 react-native-google-places-autocomplete@^2.5.6:
   version "2.5.6"
