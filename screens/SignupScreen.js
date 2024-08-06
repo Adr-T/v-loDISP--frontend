@@ -34,6 +34,7 @@ export default function SignupScreen() {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log(data);
         if (data.result) {
           dispatch(
             login({
