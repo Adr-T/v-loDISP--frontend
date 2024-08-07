@@ -96,6 +96,7 @@ export default function SignupScreen({ navigation }) {
             onChangeText={(value) => setSignUpUsername(value)}
             value={signUpUsername}
           />
+
           {usernameError && (
             <Text style={styles.error}>Username already exists</Text>
           )}
