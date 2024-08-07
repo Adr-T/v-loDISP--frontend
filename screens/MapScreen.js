@@ -49,7 +49,7 @@ export default function MapScreen() {
 
   //Mise en place d'un état pour la position actuelle
   const [currentPosition, setCurrentPosition] = useState(null);
-  // console.log(currentPosition);
+  //   console.log(currentPosition);
 
   //Déclarer la taille de la fenêtre affichant la carte
   const { width, height } = Dimensions.get("window");
@@ -131,27 +131,63 @@ export default function MapScreen() {
   };
 
   //Mise en place d'une fonction Autocomplete pour les champs de saisie Google Maps
+  let theme = {
+    color: {
+      screen: "green",
+      secondaryScreen: "#303F4A",
+      boneIcon: "white",
+    },
+  };
   function InputAutocomplete({ label, placeholder, onPlaceSelected }) {
     return (
       <>
         <Text>{label}</Text>
         <GooglePlacesAutocomplete
-          styles={{ textInput: styles.input }}
           placeholder={placeholder || ""}
-          placeholderTextColor={"#ffffff"}
-          fetchDetails
-          onPress={(data, details = null) => {
-            onPlaceSelected(details);
-          }}
+          fetchDetails={true}
           query={{
             key: GOOGLE_API_KEY,
-            language: "pt-BR",
+            language: "en",
+          }}
+          textInputProps={{ placeholderTextColor: "#ffffff" }}
+          styles={{
+            container: {
+              backgroundColor: theme.color.secondaryScreen,
+              shadowColor: "black",
+              shadowOffset: { width: 2, height: 2 },
+              shadowOpacity: 0.5,
+              shadowRadius: 4,
+              elevation: 4,
+              borderRadius: 200,
+            },
+            textInput: {
+              borderRadius: 200,
+              backgroundColor: theme.color.secondaryScreen,
+            },
+          }}
+          onPress={(data, details = null) => {
+            onPlaceSelected(details);
           }}
         />
       </>
     );
   }
 
+  {
+    /* <GooglePlacesAutocomplete
+  styles={{ textInput: styles.input }}
+  placeholder={placeholder || "green"}
+  placeholderTextColor={"#ffffff"}
+  fetchDetails
+  onPress={(data, details = null) => {
+    onPlaceSelected(details);
+  }}
+  query={{
+    key: GOOGLE_API_KEY,
+    language: "pt-BR",
+  }}
+/> */
+  }
   return (
     <View style={styles.container}>
       <MapView
@@ -222,11 +258,11 @@ const styles = StyleSheet.create({
     alignContent: "flex-start",
     width: "90%",
     backgroundColor: "transparent",
-    // shadowColor: "black",
-    // shadowOffset: { width: 2, height: 2 },
-    // shadowOpacity: 0.5,
-    // shadowRadius: 4,
-    // elevation: 4,
+    shadowColor: "black",
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 4,
     padding: 8,
     borderRadius: 8,
     top: Constants.statusBarHeight,
