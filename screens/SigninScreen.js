@@ -20,6 +20,7 @@ export default function SigninScreen() {
   const [isModalVisible, setIsModalVisible] = useState(true);
   const [signInUsername, setSignInUsername] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
+  const [error, setError] = useState(false);
 
   const handleConnection = () => {
     fetch("http://192.168.100.119:3000/users/signin", {
@@ -37,6 +38,9 @@ export default function SigninScreen() {
           setSignInUsername("");
           setSignInPassword("");
           setIsModalVisible(false);
+        }
+        if (!data.result) {
+          setError(true);
         }
       });
   };
@@ -62,6 +66,7 @@ export default function SigninScreen() {
             onChangeText={(value) => setSignInPassword(value)}
             value={signInPassword}
           />
+          {error && <Text style={styles.error}>* Invalid field</Text>}
           <TouchableOpacity
             style={styles.signinBtn}
             onPress={() => handleConnection()}
@@ -150,5 +155,10 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "bold",
     textAlign: "center",
+  },
+
+  error: {
+    marginTop: 10,
+    color: "red",
   },
 });

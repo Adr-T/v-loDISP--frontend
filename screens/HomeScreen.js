@@ -75,7 +75,7 @@ export default function HomeScreen({ navigation }) {
         <Text style={styles.title}>VéloDISPØ</Text>
       </View>
       <TouchableOpacity
-        onPress={() => navigation.navigate("TabNavigator")}
+        onPress={() => navigation.navigate("TabNavigator", { screen: "Map" })}
         style={styles.button}
         activeOpacity={0.8}
       >
