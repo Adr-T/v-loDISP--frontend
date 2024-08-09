@@ -22,10 +22,21 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 // import { mapStyle } from "../styles/mapstyle";
 import { Linking } from "react-native"; // pour permettre de rediriger vers GoogleMaps
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import Bike from "../components/Bike";
+import BikeFilter from "../components/BikeFilter";
 
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+const BACKEND_ADDRESS = process.env.BACKEND_ADDRESS;
 
 const MapScreen = () => {
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //                                                                                                                                                        //
+  //                                                                                                                                                        //
+  //                                                                    MAP                                                                                 //
+  //                                                                                                                                                        //
+  //                                                                                                                                                        //
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   // Déclaration des états avec les hooks useState
   const [region, setRegion] = useState(null); // État pour la région actuelle
   const [origin, setOrigin] = useState(null); // État pour le point de départ
@@ -111,6 +122,150 @@ const MapScreen = () => {
     }
   };
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //                                                                                                                                                        //
+  //                                                                                                                                                        //
+  //                                                                    BIKES                                                                               //
+  //                                                                                                                                                        //
+  //                                                                                                                                                        //
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //créer un état pour stocker la data pour chaque marque de vélo
+  const [velib, setVelib] = useState([]);
+  const [lime, setLime] = useState([]);
+  const [dott, setDott] = useState([]);
+  const [tier, setTier] = useState([]);
+
+  //créer un état pour stocker/filtrer les marques devant être visibles
+  const [visibleCompanies, setVisibleCompanies] = useState([
+    "velib",
+    "lime",
+    "dott",
+    "tier",
+  ]);
+
+  //afficher les vélos disponibles par marque
+  useEffect(() => {
+    fetch(`http://192.168.100.119:3000/bikes`)
+      .then((response) => response.json())
+      .then((data) => {
+        setVelib(data.velibData);
+        setLime(data.limeData);
+        // setDott(data.dottData);
+        // setTier(data.tierData);
+      });
+  }, []);
+
+  const companies = ["velib", "lime", "dott", "tier"];
+  let allBikes = [];
+
+  let allFilters = [];
+
+  // let companyName = "";
+
+  const handleFilterPress = (str) => {
+    setVisibleCompanies(str);
+  };
+
+  for (const company of companies) {
+    // companyName = company;
+    let coordinates = {};
+
+    if (company === "velib") {
+      for (const bike of velib) {
+        coordinates.latitude = bike.latitude;
+        coordinates.longitude = bike.longitude;
+        allBikes.push(
+          <Bike
+            key={bike.stationId}
+            coords={coordinates}
+            bikeType={company}
+            isVisible={
+              visibleCompanies.length === 0
+                ? true
+                : visibleCompanies.some((e) => company === e)
+            }
+          />
+        );
+        allFilters.push(
+          <BikeFilter
+            handleFilterPress={handleFilterPress}
+            bikeType={company}
+          />
+        );
+      }
+    } else if (company === "lime") {
+      for (const bike of lime) {
+        coordinates.latitude = bike.latitude;
+        coordinates.longitude = bike.longitude;
+        allBikes.push(
+          <Bike
+            key={bike.bikeId}
+            coords={coordinates}
+            bikeType={company}
+            isVisible={
+              visibleCompanies.length === 0
+                ? true
+                : visibleCompanies.some((e) => company === e)
+            }
+          />
+        );
+        allFilters.push(
+          <BikeFilter
+            handleFilterPress={handleFilterPress}
+            bikeType={company}
+          />
+        );
+      }
+    } else if (company === "dott") {
+      for (const bike of dott) {
+        coordinates.latitude = bike.latitude;
+        coordinates.longitude = bike.longitude;
+        allBikes.push(
+          <Bike
+            key={bike.bikeId}
+            coords={coordinates}
+            bikeType={company}
+            isVisible={
+              visibleCompanies.length === 0
+                ? true
+                : visibleCompanies.some((e) => company === e)
+            }
+          />
+        );
+        allFilters.push(
+          <BikeFilter
+            handleFilterPress={handleFilterPress}
+            bikeType={company}
+          />
+        );
+      }
+    } else if (company === "tier") {
+      for (const bike of tier) {
+        coordinates.latitude = bike.latitude;
+        coordinates.longitude = bike.longitude;
+        allBikes.push(
+          <Bike
+            key={bike.bikeId}
+            coords={coordinates}
+            bikeType={company}
+            isVisible={
+              visibleCompanies.length === 0
+                ? true
+                : visibleCompanies.some((e) => company === e)
+            }
+          />
+        );
+        allFilters.push(
+          <BikeFilter
+            handleFilterPress={handleFilterPress}
+            bikeType={company}
+          />
+        );
+      }
+    }
+  }
+
   return (
     <View style={styles.container}>
       {region && (
@@ -126,6 +281,8 @@ const MapScreen = () => {
             showsUserLocation
             onLongPress={handleMapPress} // Appelée lorsque l'utilisateur appuie longtemps sur la carte
           >
+            {allBikes}
+            {allFilters}
             {origin && (
               <Marker coordinate={origin} title="Origin">
                 <FontAwesome name="map-marker" color="#37678A" size={45} />

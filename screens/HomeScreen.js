@@ -10,6 +10,8 @@ import {
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useState } from "react";
 import React from "react";
+import ConnectionUser from "../components/ConnectionUser";
+// import { ConnectionUser } from "../components/ConnectionUser";
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
@@ -47,26 +49,17 @@ export default function HomeScreen({ navigation }) {
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalView}>
-            <TouchableOpacity
-              style={styles.signin}
-              onPress={() => handleSignin()}
-            >
-              <Text style={styles.textSign}>Sign in</Text>
+            <TouchableOpacity style={styles.btnClose}>
+              <FontAwesome
+                onPress={() => {
+                  setModalVisible(false);
+                }}
+                name="close"
+                size={25}
+                color="#C1DBF0"
+              />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.signup}
-              onPress={() => handleSignup()}
-            >
-              <Text style={styles.textSign}>Sign up</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.btn}
-              onPress={() => {
-                setModalVisible(false);
-              }}
-            >
-              <Text style={styles.textStyle}>Close</Text>
-            </TouchableOpacity>
+            <ConnectionUser />
           </View>
         </View>
       </Modal>
@@ -143,7 +136,6 @@ const styles = StyleSheet.create({
   modalView: {
     width: 300,
     margin: 20,
-    backgroundColor: "#303F4A",
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
@@ -156,35 +148,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  btn: {
-    backgroundColor: "#37678A",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 2,
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
 
-  signin: {
-    backgroundColor: "#C1DBF0",
-    borderRadius: 10,
-    width: "70%",
-    height: 30,
-  },
-
-  signup: {
-    backgroundColor: "#C1DBF0",
-    borderRadius: 10,
-    width: "70%",
-    height: 30,
-  },
-
-  textSign: {
-    color: "#303F4A",
-    fontWeight: "bold",
-    textAlign: "center",
+  btnClose: {
+    zIndex: 99,
+    position: "absolute",
+    top: -327,
+    right: 0,
   },
 });

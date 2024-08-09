@@ -1,35 +1,24 @@
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import React from "react";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
-export default function BikeFilter() {
+export default function BikeFilter(props) {
+  //Mise en place de la mécanique d'inverse data flow pour la fonction handleFilterPress
+  const handleFilter = () => {
+    props.handleFilterPress(props.bikeType);
+  };
+
   return (
-    <View style={styles.container}>
-      <TouchableOpacity style={styles.velib}>
-        <Text style={styles.velibText}>Vélib'</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.dott}>
-        <Text style={styles.dottText}>Dott</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.tier}>
-        <Text style={styles.tierText}>Tier</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity style={styles.lime}>
-        <Text style={styles.limeText}>Lime</Text>
-      </TouchableOpacity>
-    </View>
+    //Créer un bouton pour chaque type de filtre en utilisant la mécanique de props
+    <TouchableOpacity
+      style={styles[props.bikeType]}
+      onPress={() => handleFilter()}
+    >
+      <Text style={{ color: "#ffffff" }}>{props.bikeType}</Text>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
-  },
   velib: {
     backgroundColor: "#2280F5",
     borderRadius: 10,
@@ -46,9 +35,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  velibText: {
-    color: "#ffffff",
-  },
+
   dott: {
     backgroundColor: "#1AABEB",
     borderRadius: 10,
@@ -65,9 +52,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  dottText: {
-    color: "#ffffff",
-  },
+
   tier: {
     backgroundColor: "#172156",
     borderRadius: 10,
@@ -84,9 +69,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  tierText: {
-    color: "#ffffff",
-  },
+
   lime: {
     backgroundColor: "#07D603",
     borderRadius: 10,
@@ -102,8 +85,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-  },
-  limeText: {
-    color: "#ffffff",
   },
 });
