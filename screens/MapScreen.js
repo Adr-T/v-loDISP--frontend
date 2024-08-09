@@ -1,125 +1,199 @@
-//imports react native
-import MapView, { LatLng, Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import {
-    StyleSheet,
-    View,
-    Dimensions,
-    Text,
-    TouchableOpacity,
-    Platform,
-} from "react-native";
+import React, { useEffect, useState, useRef } from "react";
+import { Text, View, StyleSheet, Dimensions } from "react-native";
+import MapView, { Marker, Polyline } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
+import * as Location from "expo-location";
 
-//imports utiles à Google Maps
 import {
     GooglePlaceDetail,
     GooglePlacesAutocomplete,
 } from "react-native-google-places-autocomplete";
-import MapViewDirections from "react-native-maps-directions";
-
-//imports expo
-import * as Location from "expo-location";
-import Constants from "expo-constants";
-
-//imports react
-import { useRef, useState, useEffect } from "react";
-
-//imports des composants utilisés
+import Bike from "../components/Bike";
 import BikeFilter from "../components/BikeFilter";
-import BikeDisplay from "../components/BikeDisplay";
 
-//Mise en place de la clé d'API Google avec une variable d'environnement
-const GOOGLE_API_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
-export default function MapScreen() {
-    //Mise en place de l'état de départ d'un trajet
-    const [origin, setOrigin] = useState();
+const BACKEND_ADDRESS = process.env.BACKEND_ADDRESS;
 
-    //Mise en place de l'état d'arrivée d'un trajet
-    const [destination, setDestination] = useState();
-
-    //Mise en place de l'affichage d'un itinéraire
-    const [showDirections, setShowDirections] = useState(false);
-
-    //Mise en place de deux états stockant la distance et la durée estimée du trajet
-    const [distance, setDistance] = useState(0);
-    const [duration, setDuration] = useState(0);
-
-    //Affichage du trajet recherché sur la carte
+const App = () => {
+    const [region, setRegion] = useState(null);
+    const [origin, setOrigin] = useState(null);
+    const [destination, setDestination] = useState(null);
+    const [routeCoordinates, setRouteCoordinates] = useState([]);
     const mapRef = useRef(null);
 
-    //Mise en place d'un état pour la position actuelle
-    const [currentPosition, setCurrentPosition] = useState(null);
-    console.log(currentPosition);
+    //créer un état pour stocker la data pour chaque marque de vélo
+    const [velib, setVelib] = useState([]);
+    const [lime, setLime] = useState([]);
+    const [dott, setDott] = useState([]);
+    const [tier, setTier] = useState([]);
 
-    //Déclarer la taille de la fenêtre affichant la carte
-    const { width, height } = Dimensions.get("window");
+    //créer un état pour stocker/filtrer les marques devant être visibles
+    const [visibleCompanies, setVisibleCompanies] = useState([
+        "velib",
+        "lime",
+        "dott",
+        "tier",
+    ]);
 
-    //paramétrage initial de la cartographie
-    const ASPECT_RATIO = width / height;
-    const LATITUDE_DELTA = 0.02;
-    const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
-    const INITIAL_POSITION = {
-        latitude: currentPosition?.latitude || 48.86666,
-        longitude: currentPosition?.longitude || 2.33333,
-        latitudeDelta: LATITUDE_DELTA,
-        longitudeDelta: LONGITUDE_DELTA,
+    //afficher les vélos disponibles par marque
+    useEffect(() => {
+        fetch(`${BACKEND_ADDRESS}/bikes`)
+            .then((response) => response.json())
+            .then((data) => {
+                setVelib(data.velibData);
+                setLime(data.limeData);
+                // setDott(data.dottData);
+                // setTier(data.tierData);
+            });
+    }, []);
+
+    const companies = ["velib", "lime", "dott", "tier"];
+    let allBikes = [];
+
+    let allFilters = [];
+
+    // let companyName = "";
+
+    const handleFilterPress = (str) => {
+        setVisibleCompanies(str);
     };
+
+    for (const company of companies) {
+        // companyName = company;
+        let coordinates = {};
+
+        if (company === "velib") {
+            for (const bike of velib) {
+                coordinates.latitude = bike.latitude;
+                coordinates.longitude = bike.longitude;
+                allBikes.push(
+                    <Bike
+                        key={bike.stationId}
+                        coords={coordinates}
+                        bikeType={company}
+                        isVisible={
+                            visibleCompanies.length === 0
+                                ? true
+                                : visibleCompanies.some((e) => company === e)
+                        }
+                    />
+                );
+                allFilters.push(
+                    <BikeFilter
+                        handleFilterPress={handleFilterPress}
+                        bikeType={company}
+                    />
+                );
+            }
+        } else if (company === "lime") {
+            for (const bike of lime) {
+                coordinates.latitude = bike.latitude;
+                coordinates.longitude = bike.longitude;
+                allBikes.push(
+                    <Bike
+                        key={bike.bikeId}
+                        coords={coordinates}
+                        bikeType={company}
+                        isVisible={
+                            visibleCompanies.length === 0
+                                ? true
+                                : visibleCompanies.some((e) => company === e)
+                        }
+                    />
+                );
+                allFilters.push(
+                    <BikeFilter
+                        handleFilterPress={handleFilterPress}
+                        bikeType={company}
+                    />
+                );
+            }
+        } else if (company === "dott") {
+            for (const bike of dott) {
+                coordinates.latitude = bike.latitude;
+                coordinates.longitude = bike.longitude;
+                allBikes.push(
+                    <Bike
+                        key={bike.bikeId}
+                        coords={coordinates}
+                        bikeType={company}
+                        isVisible={
+                            visibleCompanies.length === 0
+                                ? true
+                                : visibleCompanies.some((e) => company === e)
+                        }
+                    />
+                );
+                allFilters.push(
+                    <BikeFilter
+                        handleFilterPress={handleFilterPress}
+                        bikeType={company}
+                    />
+                );
+            }
+        } else if (company === "tier") {
+            for (const bike of tier) {
+                coordinates.latitude = bike.latitude;
+                coordinates.longitude = bike.longitude;
+                allBikes.push(
+                    <Bike
+                        key={bike.bikeId}
+                        coords={coordinates}
+                        bikeType={company}
+                        isVisible={
+                            visibleCompanies.length === 0
+                                ? true
+                                : visibleCompanies.some((e) => company === e)
+                        }
+                    />
+                );
+                allFilters.push(
+                    <BikeFilter
+                        handleFilterPress={handleFilterPress}
+                        bikeType={company}
+                    />
+                );
+            }
+        }
+    }
+    console.log(companyName);
 
     useEffect(() => {
         (async () => {
-            //Demander l'autorisation d'accès à la position de l'utilisateur
-            const result = await Location?.requestForegroundPermissionsAsync();
-            const status = result?.status;
-
-            //Si autorisation acceptée, on récupère une position mise à jour tous les 10m
-            if (status === "granted") {
-                Location?.watchPositionAsync(
-                    { distanceInterval: 10 },
-                    (location) => {
-                        setCurrentPosition(location.coords);
-                    }
-                );
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            //Si l'autorisation n'est pas acceptée, on envoie un message d'erreur à la console
+            if (status !== "granted") {
+                console.error("Permission to access location was denied");
+                return;
             }
+
+            let location = await Location.getCurrentPositionAsync({});
+            //Mise en place de la région initiale dans l'état region
+            setRegion({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+            });
+            //Mise en place du départ dans l'état origin
+            setOrigin({
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+            });
         })();
     }, []);
 
-    //Déclarer une fonction à revoir
-    const moveTo = async (position) => {
-        const camera = await mapRef.current?.getCamera();
-        if (camera) {
-            camera.center = position;
-            mapRef.current?.animateCamera(camera, { duration: 1000 });
-        }
-    };
+    const [velibParking, setVelibParking] = useState([
+        { station_id: null, lat: null, lon: null },
+    ]);
+    const [velibNumberAvailable, setVelibNumberAvailable] = useState([
+        { station_id: null, numBikesAvailable: null },
+    ]);
 
-    //Déclarer un réglage de base de l'affichage (zoom)
-    const edgePaddingValue = 70;
-
-    const edgePadding = {
-        top: edgePaddingValue,
-        right: edgePaddingValue,
-        bottom: edgePaddingValue,
-        left: edgePaddingValue,
-    };
-
-    //Vérifier si le départ et l'arrivée ont été remplis dans les inputs, puis afficher le trajet
-    const traceRoute = () => {
-        if (origin && destination) {
-            setShowDirections(true);
-            mapRef.current?.fitToCoordinates([origin, destination], {
-                edgePadding,
-            });
-        }
-    };
-
-    //Au clic sur le bouton Trace route, mise à des états distance et duration
-    const traceRouteOnReady = (args) => {
-        if (args) {
-            // args.distance
-            // args.duration
-            setDistance(args.distance);
-            setDuration(args.duration);
-        }
+    //Créer une destination en appuyant sur la carte
+    const handleMapPress = (e) => {
+        setDestination(e.nativeEvent.coordinate);
     };
 
     //Récupérer les données de géolocalisation des lieux recherchés
@@ -133,7 +207,7 @@ export default function MapScreen() {
         moveTo(position);
     };
 
-    //Mise en place d'une fonction Autocomplete pour les champs de saisie Google Maps
+    //Mise en place d'une fonction Autocomplete pour les champs de saisie GoogleMaps
     function InputAutocomplete({ label, placeholder, onPlaceSelected }) {
         return (
             <>
@@ -143,127 +217,119 @@ export default function MapScreen() {
                     placeholder={placeholder || ""}
                     placeholderTextColor={"#ffffff"}
                     fetchDetails
-                    onPress={(data, details = null) => {
-                        onPlaceSelected(details);
-                    }}
                     query={{
-                        key: GOOGLE_API_KEY,
-                        language: "pt-BR",
+                        key: GOOGLE_MAPS_APIKEY,
+                        language: "en",
                     }}
+                    // textInputProps={{ placeholderTextColor: "#ffffff" }}
+                    // onPress={(data, details = null) => {
+                    //     onPlaceSelected(details);
+                    // }}
                 />
             </>
         );
     }
 
+    const handlePlaceSelect = (type, details) => {
+        const { geometry } = details;
+        const location = {
+            latitude: geometry.location.lat,
+            longitude: geometry.location.lng,
+        };
+        if (type === "origin") {
+            setOrigin(location);
+        } else if (type === "destination") {
+            setDestination(location);
+        }
+    };
+
     return (
         <View style={styles.container}>
-            <MapView
-                ref={mapRef}
-                style={styles.map}
-                provider={MapView.PROVIDER_GOOGLE}
-                region={INITIAL_POSITION}
-            >
-                {origin && <Marker coordinate={origin} />}
-                {destination && <Marker coordinate={destination} />}
-                {showDirections && origin && destination && (
-                    <MapViewDirections
-                        origin={origin}
-                        destination={destination}
-                        apikey={GOOGLE_API_KEY}
-                        strokeColor="#6644ff"
-                        strokeWidth={4}
-                        onReady={traceRouteOnReady}
-                    />
-                )}
-            </MapView>
-            <BikeDisplay />
-            <View style={styles.searchContainer}>
-                <InputAutocomplete
-                    style={styles.inputFrom}
-                    // label="Origin"
-                    placeholder={"From..."}
-                    onPlaceSelected={(details) => {
-                        onPlaceSelected(details, "origin");
+            {region && (
+                <MapView
+                    ref={mapRef}
+                    style={styles.map}
+                    initialRegion={region}
+                    onLongPress={handleMapPress}
+                    showsUserLocation
+                >
+                    {allBikes}
+                    {allFilters}
+                    {/* {origin && <Marker coordinate={origin} title="Origin" />} */}
+                    {destination && (
+                        <Marker coordinate={destination} title="Destination" />
+                    )}
+                    {origin && destination && (
+                        <MapViewDirections
+                            origin={origin}
+                            destination={destination}
+                            apikey={GOOGLE_MAPS_APIKEY}
+                            strokeWidth={3}
+                            strokeColor="hotpink"
+                            onReady={(result) => {
+                                setRouteCoordinates(result.coordinates);
+                            }}
+                        />
+                    )}
+                    {routeCoordinates.length > 0 && (
+                        <Polyline
+                            coordinates={routeCoordinates}
+                            strokeWidth={3}
+                            strokeColor="hotpink"
+                        />
+                    )}
+                </MapView>
+            )}
+            <View style={styles.inputContainer}>
+                <GooglePlacesAutocomplete
+                    placeholder="Origin"
+                    fetchDetails={true}
+                    onPress={(data, details = null) =>
+                        handlePlaceSelect("origin", details)
+                    }
+                    query={{
+                        key: GOOGLE_MAPS_APIKEY,
+                        language: "en",
+                        types: "geocode",
                     }}
+                    // styles={autocompleteStyles}
                 />
-                <InputAutocomplete
-                    style={styles.inputTo}
-                    // label="Destination"
-                    placeholder={"To..."}
-                    onPlaceSelected={(details) => {
-                        onPlaceSelected(details, "destination");
+                <GooglePlacesAutocomplete
+                    placeholder="Destination"
+                    fetchDetails={true}
+                    onPress={(data, details = null) =>
+                        handlePlaceSelect("destination", details)
+                    }
+                    query={{
+                        key: GOOGLE_MAPS_APIKEY,
+                        language: "en",
+                        types: "geocode",
                     }}
+                    // styles={autocompleteStyles}
                 />
-                <TouchableOpacity style={styles.button} onPress={traceRoute}>
-                    <Text style={styles.buttonText}>Trace route</Text>
-                </TouchableOpacity>
-                <BikeFilter />
-                {distance && duration ? (
-                    <View>
-                        <Text>Distance: {distance.toFixed(2)}</Text>
-                        <Text>Duration: {Math.ceil(duration)} min</Text>
-                    </View>
-                ) : null}
             </View>
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: "#fff",
+        ...StyleSheet.absoluteFillObject,
+        justifyContent: "flex-start",
         alignItems: "center",
-        justifyContent: "center",
     },
     map: {
-        width: Dimensions.get("window").width,
-        height: Dimensions.get("window").height,
+        ...StyleSheet.absoluteFillObject,
     },
-    searchContainer: {
-        position: "absolute",
-        alignContent: "flex-start",
-        width: "90%",
-        backgroundColor: "transparent",
-        // shadowColor: "black",
-        // shadowOffset: { width: 2, height: 2 },
-        // shadowOpacity: 0.5,
-        // shadowRadius: 4,
-        // elevation: 4,
-        padding: 8,
-        borderRadius: 8,
-        top: Constants.statusBarHeight,
+    inputContainer: {
+        // flex: 0.5,
+        marginTop: 20,
+        width: "80%",
+        height: "15%",
     },
     input: {
-        backgroundColor: "#303F4A",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-        borderRadius: 20,
-        margin: 0,
-        padding: 0,
-    },
-    button: {
-        backgroundColor: "#303F4A",
-        paddingVertical: 12,
-        marginTop: 20,
-        borderRadius: 20,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
-    },
-    buttonText: {
-        textAlign: "center",
-        color: "#ffffff",
+        width: "80%",
     },
 });
+
+export default App;
