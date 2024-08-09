@@ -8,21 +8,35 @@ import {
   Modal,
 } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import React from "react";
+import ConnectionUser from "../components/ConnectionUser";
+
+// Rest of the import statements
+import {
+  PlayfairDisplay_400Regular,
+  useFonts,
+} from "@expo-google-fonts/playfair-display";
+import * as SplashScreen from "expo-splash-screen";
+
+SplashScreen.preventAutoHideAsync();
 
 export default function HomeScreen({ navigation }) {
   const [modalVisible, setModalVisible] = useState(false);
 
-  const handleSignin = () => {
-    navigation.navigate("Signin");
-    setModalVisible(false);
-  };
+  const [loaded, error] = useFonts({
+    PlayfairDisplay_400Regular,
+  });
 
-  const handleSignup = () => {
-    navigation.navigate("Signup");
-    setModalVisible(false);
-  };
+  useEffect(() => {
+    if (loaded || error) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   return (
     <KeyboardAvoidingView
@@ -33,8 +47,8 @@ export default function HomeScreen({ navigation }) {
         <FontAwesome
           name="user"
           onPress={() => setModalVisible(true)}
-          size={25}
-          color="#C1DBF0"
+          size={35}
+          color="white"
         />
       </View>
       <Modal
@@ -47,39 +61,38 @@ export default function HomeScreen({ navigation }) {
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalView}>
-            <TouchableOpacity
-              style={styles.signin}
-              onPress={() => handleSignin()}
-            >
-              <Text style={styles.textSign}>Sign in</Text>
+            <TouchableOpacity style={styles.btnClose}>
+              <FontAwesome
+                onPress={() => {
+                  setModalVisible(false);
+                }}
+                name="close"
+                size={35}
+                color="#C1DBF0"
+              />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.signup}
-              onPress={() => handleSignup()}
-            >
-              <Text style={styles.textSign}>Sign up</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.btn}
-              onPress={() => {
-                setModalVisible(false);
-              }}
-            >
-              <Text style={styles.textStyle}>Close</Text>
-            </TouchableOpacity>
+            <ConnectionUser />
           </View>
         </View>
       </Modal>
       <View>
-        <Text style={styles.logo}>Ø</Text>
-        <Text style={styles.title}>VéloDISPØ</Text>
+        <Text
+          style={{ ...styles.logo, fontFamily: "PlayfairDisplay_400Regular" }}
+        >
+          Ø
+        </Text>
+        <Text
+          style={{ ...styles.title, fontFamily: "PlayfairDisplay_400Regular" }}
+        >
+          VéloDISPØ
+        </Text>
       </View>
       <TouchableOpacity
         onPress={() => navigation.navigate("TabNavigator", { screen: "Map" })}
         style={styles.button}
         activeOpacity={0.8}
       >
-        <Text style={styles.textButton}>Start</Text>
+        <Text style={styles.buttonText}>Start</Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
@@ -88,50 +101,60 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 20,
     backgroundColor: "#303F4A",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-evenly",
   },
 
   title: {
-    fontFamily: "playfair display",
     color: "white",
-    width: "80%",
-    fontSize: 40,
+    fontSize: 35,
     fontWeight: "600",
   },
 
   logo: {
-    fontFamily: "playfair display",
     color: "white",
-    width: "80%",
-    fontSize: 180,
-    // fontWeight: "600",
+    fontSize: 222,
   },
 
   button: {
-    alignItems: "center",
-    paddingTop: 8,
-    width: "80%",
-    // marginTop: 30,
-    backgroundColor: "#C1DBF0",
+    color: "#FAFAFA",
+    textTransform: "uppercase",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 10,
-    // marginBottom: 80,
+    borderWidth: 2,
+    borderColor: "#FAFAFA",
+    backgroundColor: "#303F4A",
+    shadowColor: "#FAFAFA",
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    width: "50%",
+    // marginVertical: 35,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  textButton: {
-    color: "#303F4A",
-    height: 30,
-    fontWeight: "600",
+
+  buttonText: {
+    color: "#FAFAFA",
+    fontFamily: "monospace",
     fontSize: 16,
+    textTransform: "uppercase",
   },
 
   user: {
-    height: "100%",
-    width: "80%",
-    marginTopTop: "5%",
-    flex: 0.1,
-    flexDirection: "row",
-    alignItems: "flex-end",
+    zIndex: 99,
+    position: "absolute",
+    top: 50,
+    left: 25,
+    // height: "100%",
+    // width: "80%",
+    // marginTopTop: "5%",
+    // flex: 0.1,
+    // flexDirection: "row",
+    // alignItems: "flex-end",
   },
 
   modalBackground: {
@@ -143,7 +166,6 @@ const styles = StyleSheet.create({
   modalView: {
     width: 300,
     margin: 20,
-    backgroundColor: "#303F4A",
     borderRadius: 20,
     padding: 35,
     alignItems: "center",
@@ -156,35 +178,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  btn: {
-    backgroundColor: "#37678A",
-    borderRadius: 10,
-    padding: 10,
-    elevation: 2,
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
 
-  signin: {
-    backgroundColor: "#C1DBF0",
-    borderRadius: 10,
-    width: "70%",
-    height: 30,
-  },
-
-  signup: {
-    backgroundColor: "#C1DBF0",
-    borderRadius: 10,
-    width: "70%",
-    height: 30,
-  },
-
-  textSign: {
-    color: "#303F4A",
-    fontWeight: "bold",
-    textAlign: "center",
+  btnClose: {
+    zIndex: 99,
+    position: "absolute",
+    top: -320,
+    right: 0,
   },
 });

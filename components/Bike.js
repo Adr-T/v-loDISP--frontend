@@ -5,6 +5,7 @@ export default function Bike(props) {
   return (
     <Marker
       coordinate={props.coords}
+      bikeType={props.bikeType}
       style={{ display: props.isVisible ? "flex" : "none" }}
     >
       <FontAwesome

@@ -6,8 +6,6 @@ import HomeScreen from "./screens/HomeScreen";
 import MapScreen from "./screens/MapScreen";
 import AlertScreen from "./screens/AlertScreen";
 import HistoricScreen from "./screens/HistoricScreen";
-import SigninScreen from "./screens/SigninScreen";
-import SignupScreen from "./screens/SignupScreen";
 
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
@@ -55,8 +53,6 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Signin" component={SigninScreen} />
-          <Stack.Screen name="Signup" component={SignupScreen} />
           <Stack.Screen name="TabNavigator" component={TabNavigator} />
         </Stack.Navigator>
       </NavigationContainer>
