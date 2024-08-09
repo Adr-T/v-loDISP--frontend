@@ -8,7 +8,7 @@ import { Linking } from "react-native";
 
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
-const BACKEND_ADDRESS = "http://192.168.100.237:3000";
+const BACKEND_ADDRESS = "http://http://192.168.100.237:3000";
 
 const App = () => {
     const [region, setRegion] = useState(null);
