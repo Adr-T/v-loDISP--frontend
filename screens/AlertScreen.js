@@ -4,6 +4,7 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useEffect, useState } from "react";
 export default function AlertScreen() {
   // state pour recupere data de l'alert
+
   const [dataAlert, setDataAlert] = useState(null);
   useEffect(() => {
     fetch(`http://192.168.100.78:3000/alerts`)
@@ -15,9 +16,9 @@ export default function AlertScreen() {
   // on boucle la data et on va mettre dans un variable pour afficher et retourner le resultat
   const afficheAlert =
     dataAlert &&
-    dataAlert.map((el) => {
+    dataAlert.map((el, index) => {
       return (
-        <View style={styles.alertContainer}>
+        <View style={styles.alertContainer} key={index}>
           <View style={styles.iconAlert}>
             <FontAwesome name="bell" size={25} color="white"></FontAwesome>
           </View>

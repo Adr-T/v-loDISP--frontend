@@ -54,6 +54,7 @@ const MapScreen = () => {
         latitudeDelta: 0.0922,
         longitudeDelta: 0.0421,
       });
+
       // Définir le point de départ comme la localisation actuelle
       setOrigin(location.coords);
     })();
