@@ -8,12 +8,18 @@ import {
   Switch,
   Animated,
   Easing,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import GoogleSignIn from "./GoogleSignin";
 
 const ConnectionUser = () => {
+  // Initialisation du hook dispatch pour envoyer des actions à Redux
   const dispatch = useDispatch();
+  // Utilisation du hook useSelector pour accéder à l'état de l'utilisateur dans Redux
   const user = useSelector((state) => state.user.value);
+  // État pour gérer la visibilité du modal
   const [isModalVisible, setIsModalVisible] = useState(true);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -24,29 +30,34 @@ const ConnectionUser = () => {
   //                                                                                                                                                        //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  // État pour gérer l'animation de retournement
   const [isFlipped, setIsFlipped] = useState(false);
+  // État pour gérer l'animation
   const [flipAnimation, setFlipAnimation] = useState(new Animated.Value(0));
 
+  // Fonction pour activer/désactiver le retournement de la carte
   const toggleFlip = () => {
     setIsFlipped(!isFlipped);
     Animated.timing(flipAnimation, {
-      toValue: isFlipped ? 0 : 1,
-      duration: 800,
-      easing: Easing.inOut(Easing.ease),
-      useNativeDriver: true,
-    }).start();
+      toValue: isFlipped ? 0 : 1, // Transition entre 0 et 1 pour l'animation
+      duration: 800, // Durée de l'animation en millisecondes
+      easing: Easing.inOut(Easing.ease), // Fonction d'easing pour l'animation
+      useNativeDriver: true, // Utilisation du driver natif pour des performances optimales
+    }).start(); // Démarrage de l'animation
   };
 
+  // Interpolation pour faire pivoter la carte autour de l'axe Y
   const frontInterpolate = flipAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: ["0deg", "180deg"],
+    outputRange: ["0deg", "180deg"], // Rotation de 0 à 180 degrés
   });
 
   const backInterpolate = flipAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: ["180deg", "360deg"],
+    outputRange: ["180deg", "360deg"], // Rotation de 180 à 360 degrés
   });
 
+  // Styles animés pour les côtés avant et arrière de la carte
   const frontAnimatedStyle = {
     transform: [{ rotateY: frontInterpolate }],
   };
@@ -62,10 +73,13 @@ const ConnectionUser = () => {
   //                                                                                                                                                        //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  // États pour gérer les champs de connexion
   const [signInUsername, setSignInUsername] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
+  // État pour afficher les erreurs
   const [error, setError] = useState(false);
 
+  // Fonction pour gérer la connexion de l'utilisateur
   const handleConnection = () => {
     fetch("http://192.168.100.119:3000/users/signin", {
       method: "POST",
@@ -78,23 +92,25 @@ const ConnectionUser = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.result) {
+          // Si la connexion réussit, envoyer les informations à Redux et réinitialiser les champs
           dispatch(login({ username: signInUsername, token: data.token }));
           setSignInUsername("");
           setSignInPassword("");
           setIsModalVisible(false);
-        }
-        if (!data.result) {
+        } else {
+          // Afficher une erreur si la connexion échoue
           setError(true);
         }
       });
   };
 
+  // Contenu du modal pour la connexion
   let modalContent;
   if (!user.isConnected) {
     modalContent = (
-      <View className={styles.registerContainer}>
-        <View className={styles.registerSection}>
-          <Text style={styles.title}>Login VéloDISPØ</Text>
+      <View style={styles.registerContainer}>
+        <View style={styles.registerSection}>
+          <Text style={styles.title}>Login</Text>
           <TextInput
             placeholder="Username"
             placeholderTextColor="#303F4A"
@@ -110,6 +126,9 @@ const ConnectionUser = () => {
             value={signInPassword}
           />
           {error && <Text style={styles.error}>* Invalid field</Text>}
+          <View style={styles.google}>
+            <GoogleSignIn />
+          </View>
           <TouchableOpacity
             style={styles.button}
             onPress={() => handleConnection()}
@@ -128,21 +147,36 @@ const ConnectionUser = () => {
   //                                                                                                                                                        //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+  // États pour gérer les champs d'inscription
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpUsername, setSignUpUsername] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
+  // États pour afficher les erreurs
   const [usernameError, setUsernameError] = useState(false);
   const [emailError, setEmailError] = useState(false);
-  //RegEx pour être sure que l'adresse email est une adresse email
+  const [passwordError, setPasswordError] = useState(false);
+  // RegEx pour valider les adresses email
   const EMAIL_REGEX =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
+  // RegEx pour password doit avoir au moins
+  const PASSWORD_REGEX =
+    /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+
+  // Fonction pour gérer l'inscription de l'utilisateur
   const handleRegister = () => {
     if (!EMAIL_REGEX.test(signUpEmail)) {
+      // Vérifier la validité de l'email
       setEmailError(true);
       return;
     } else if (signUpUsername.length === 0) {
+      // Vérifier si le nom d'utilisateur est vide
       setUsernameError(true);
+      return;
+    }
+
+    if (!PASSWORD_REGEX.test(signUpPassword)) {
+      setPasswordError(true);
       return;
     }
 
@@ -159,6 +193,7 @@ const ConnectionUser = () => {
       .then((data) => {
         console.log(data);
         if (data.result) {
+          // Si l'inscription réussit, envoyer les informations à Redux et réinitialiser les champs
           dispatch(
             login({
               email: signUpEmail,
@@ -166,25 +201,29 @@ const ConnectionUser = () => {
               token: data.token,
             })
           );
+          // Navigation vers l'écran "Map"
           navigation.navigate("TabNavigator", { screen: "Map" });
           setSignUpEmail("");
           setSignUpUsername("");
           setSignUpPassword("");
           setIsModalVisible(false);
         } else if (data.source === "user") {
+          // Afficher une erreur si le nom d'utilisateur existe déjà
           setUsernameError(true);
         } else if (data.source === "email") {
+          // Afficher une erreur si l'email est déjà utilisé
           setEmailError(true);
         }
       });
   };
 
+  // Contenu du modal pour l'inscription
   let modalContent2;
   if (!user.isConnected) {
     modalContent2 = (
-      <View className={styles.registerContainer}>
-        <View className={styles.registerSection}>
-          <Text style={styles.title}>Sign up VéloDISPØ</Text>
+      <View style={styles.registerContainer}>
+        <View style={styles.registerSection}>
+          <Text style={styles.title}>Sign up</Text>
           <TextInput
             placeholder="Email"
             placeholderTextColor="#303F4A"
@@ -205,7 +244,6 @@ const ConnectionUser = () => {
             onChangeText={(value) => setSignUpUsername(value)}
             value={signUpUsername}
           />
-
           {usernameError && (
             <Text style={styles.error}>Username already exists</Text>
           )}
@@ -216,6 +254,14 @@ const ConnectionUser = () => {
             onChangeText={(value) => setSignUpPassword(value)}
             value={signUpPassword}
           />
+          {passwordError && (
+            <Text style={styles.error}>
+              Min 8 characters, one letter, one number and one special character
+            </Text>
+          )}
+          <View style={styles.google2}>
+            <GoogleSignIn />
+          </View>
           <TouchableOpacity
             style={styles.button}
             onPress={() => handleRegister()}
@@ -228,7 +274,10 @@ const ConnectionUser = () => {
   }
 
   return (
-    <View style={styles.wrapper}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.wrapper}
+    >
       <View style={styles.switchContainer}>
         <Switch
           value={isFlipped}
@@ -245,16 +294,17 @@ const ConnectionUser = () => {
         </View>
       </View>
       <View style={styles.flipCardContainer}>
-        <Animated.View style={[styles.flipCard, frontAnimatedStyle]}>
-          <View style={styles.flipCardSide}>{modalContent}</View>
-        </Animated.View>
-        <Animated.View
-          style={[styles.flipCard, styles.flipCardBack, backAnimatedStyle]}
-        >
-          <View style={styles.flipCardSide}>{modalContent2}</View>
-        </Animated.View>
+        {!isFlipped ? (
+          <Animated.View style={[styles.flipCard, frontAnimatedStyle]}>
+            <View style={styles.flipCardSide}>{modalContent}</View>
+          </Animated.View>
+        ) : (
+          <Animated.View style={[styles.flipCard, backAnimatedStyle]}>
+            <View style={styles.flipCardSide}>{modalContent2}</View>
+          </Animated.View>
+        )}
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -349,8 +399,38 @@ const styles = StyleSheet.create({
   },
 
   error: {
-    marginTop: 10,
+    marginTop: -15,
     color: "red",
+  },
+
+  google: {
+    zIndex: 99,
+    position: "absolute",
+    top: 175,
+    left: 200,
+    width: 35,
+    height: 35,
+    borderRadius: 60,
+    borderWidth: 2,
+    borderColor: "#323232",
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  google2: {
+    zIndex: 99,
+    position: "absolute",
+    top: 235,
+    left: 200,
+    width: 35,
+    height: 35,
+    borderRadius: 60,
+    borderWidth: 2,
+    borderColor: "#323232",
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
