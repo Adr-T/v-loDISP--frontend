@@ -11,12 +11,12 @@ import { useState, useEffect } from "react";
 import { Linking } from "react-native";
 
 export default function BikeModal(props) {
-    //à mettre probablement dans Mapscreen état pour afficher la modale
-    const [modalVisible, setModalVisible] = useState(false);
+    //Mise en place d'un état pour gérer la visibilité de la modale
+    const [modalVisible, setModalVisible] = useState(null);
 
-    //afficher la modale onPress sur l'icône vélo
-    handlePressBike = () => {
-        setModalVisible(true);
+    //fermer la modale onPress sur l'icône X
+    handleCloseModal = () => {
+        setModalVisible(false);
     };
 
     //rediriger vers une app externe
@@ -56,8 +56,11 @@ export default function BikeModal(props) {
         <View>
             <Modal visible={modalVisible} animationType="fade">
                 <View style={styles.modalView}>
-                    <TouchableOpacity onPress={""}>
+                    <TouchableOpacity onPress={() => openExternalApp()}>
                         <Text>unlock and pay this bike !</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleCloseModal()}>
+                        <Text>X</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>

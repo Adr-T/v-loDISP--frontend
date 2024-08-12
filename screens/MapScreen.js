@@ -352,7 +352,7 @@ const MapScreen = () => {
                         //   Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
                         // }
                         initialRegion={region}
-                        // showsUserLocation
+                        showsUserLocation
                         onLongPress={handleMapPress} // Appelée lorsque l'utilisateur appuie longtemps sur la carte
                     >
                         {allBikes}
