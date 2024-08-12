@@ -3,6 +3,7 @@ import React from "react";
 
 import { useEffect, useState } from "react";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+
 export default function HistoricScreen() {
   // variable pour recuperer les donee
   const [data, setData] = useState(null);

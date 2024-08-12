@@ -20,7 +20,7 @@ export default function GoogleSignIn() {
   // Configure la requête d'authentification en utilisant Google OAuth
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
     {
-      clientId: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com", // ID client Google OAuth, à remplacer par le tien
+      clientId: process.env.EXPO_PUBLIC_GOOGLE_ID, // ID client Google OAuth, à remplacer par le tien
       scopes: ["profile", "email"], // Les informations demandées à l'utilisateur
       redirectUri, // URI de redirection configurée plus haut
     },
