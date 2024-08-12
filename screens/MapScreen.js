@@ -23,8 +23,9 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 // import { mapStyle } from "../styles/mapstyle";
 import { Linking } from "react-native"; // pour permettre de rediriger vers GoogleMaps
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import Bike from "../components/Bike";
-import BikeFilter from "../components/BikeFilter";
+import Bike from "../components/Bike"; //importer le composant Bike afin de l'utiliser dans Mapscreen
+import BikeFilter from "../components/BikeFilter"; //importer le composant BikeFilter afin de l'utiliser dans Mapscreen
+import BikeModal from "../components/BikeModal"; //importer le composant BikeModal afin de l'utiliser dans Mapscreen
 import ArrivalModal from "../components/ArrivalModal";
 import * as geolib from "geolib";
 import AntIcon from "react-native-vector-icons/AntDesign";
@@ -193,9 +194,23 @@ const MapScreen = () => {
         "tier",
     ]);
 
+    //créer un état pour afficher la modale par vélo
+    const [bikeModalVisible, setBikeModalVisible] = useState(false);
+    // console.log(bikeModalVisible);
+
+    //Mise en place d'un état pour stocker temprairement le type de vélo (velib, ...)
+    const [selectedBikeType, setSelectedBikeType] = useState("");
+
+    //afficher la modale onPress sur l'icône d'un vélo
+    const handlePressBike = (company) => {
+        //type de vélo passé en argument de la fonction
+        setSelectedBikeType(company); //stocker le type de vélo
+        setBikeModalVisible(true); //passer la modale à visible
+    };
+
     const fetchBikes = () => {
         fetch(
-            `http://192.168.100.119:3000/bikes/${region.latitude}/${region.longitude}`
+            `http://192.168.100.237:3000/bikes/${region.latitude}/${region.longitude}`
         )
             .then((response) => response.json())
             .then((data) => {
@@ -246,6 +261,7 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
+                        onPress={() => handlePressBike(company)} //invoquer la fonction handlePressBike
                     />
                 );
             }
@@ -272,6 +288,7 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
+                        onPress={() => handlePressBike(company)}
                     />
                 );
             }
@@ -298,6 +315,7 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
+                        onPress={() => handlePressBike(company)}
                     />
                 );
             }
@@ -324,6 +342,7 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
+                        onPress={() => handlePressBike(company)}
                     />
                 );
             }
@@ -468,6 +487,12 @@ const MapScreen = () => {
                     )}
                 </>
             )}
+            {/* Mise en place de la balise type BikeModal avec 3 propriétés passées en props vers son composant enfant */}
+            <BikeModal
+                bikeType={selectedBikeType}
+                modalVisible={bikeModalVisible}
+                closeModal={() => setBikeModalVisible(false)}
+            />
         </View>
     );
 };
