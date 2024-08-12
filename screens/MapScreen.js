@@ -1,8 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-<<<<<<< HEAD
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import MapView, { Marker, Polyline } from "react-native-maps";
-=======
 import {
     View,
     Text,
@@ -13,6 +9,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Platform,
+    Modal,
 } from "react-native";
 import MapView, {
     Marker,
@@ -20,7 +17,6 @@ import MapView, {
     PROVIDER_GOOGLE,
     PROVIDER_DEFAULT,
 } from "react-native-maps";
->>>>>>> 0d3b5f55fa88a6837a392b03bc10c9a44c8f042e
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -29,8 +25,9 @@ import { Linking } from "react-native"; // pour permettre de rediriger vers Goog
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Bike from "../components/Bike";
 import BikeFilter from "../components/BikeFilter";
-import ArrivalModal from "../screens/ArrivalModal";
+import ArrivalModal from "../components/ArrivalModal";
 import * as geolib from "geolib";
+import AntIcon from "react-native-vector-icons/AntDesign";
 
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
@@ -88,227 +85,6 @@ const MapScreen = () => {
         })();
     }, []);
 
-<<<<<<< HEAD
-      // Obtenir la localisation actuelle
-      Location.watchPositionAsync(
-        {
-          distanceInterval: 50,
-          accuracy: Location.Accuracy.BestForNavigation,
-        },
-        (location) => {
-          setRegion({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
-          });
-          // Définir le point de départ comme la localisation actuelle
-          setOrigin(location.coords);
-          !locationLoaded && setLocationLoaded(true);
-        }
-      );
-    })();
-  }, []);
-
-  // geolib methode pour calculer la distance entre 2 adress
-  // console.log(destination.latitude, destination.longitude);
-  const reset = () => {
-    setModalVisible(true);
-    disTanceInMeteres = 5000000;
-  };
-  // console.log(region.latitude, region.longitude);
-  const getModal = async () => {
-    const dist = await geolib.getDistance(
-      // la location ou on est
-      {
-        latitude: region.latitude ? region.latitude : null,
-        longitude: region.longitude ? region.longitude : null,
-      },
-      // location ou on va
-      {
-        latitude: destination.latitude ? destination.latitude : null,
-        longitude: destination.longitude ? destination.longitude : null,
-      }
-    );
-    // on divise la distanc pour avoir de disntance en metre
-    const disTanceInMeteres = dist / 10000;
-    if (disTanceInMeteres < 0.2) {
-      // console.log("destination reached  ");
-      selectArrivalModal();
-    }
-  };
-  // on appeele une ucntion qui envoi linfromation au composont
-  const selectArrivalModal = () => {
-    setModalVisible(true);
-  };
-
-  getModal();
-
-  // Gérer la création d'une destination en appuyant sur la carte
-  const handleMapPress = (e) => {
-    setDestination(e.nativeEvent.coordinate);
-  };
-
-  // Fonction appelée lorsque les directions sont prêtes
-  const handleDirectionsReady = (result) => {
-    setRouteCoordinates(result.coordinates); // Définir les coordonnées de l'itinéraire
-    setSteps(result.legs[0].steps); // Définir les étapes du trajet
-    setDistance(result.legs[0].distance.text); // Définir la distance du trajet
-    setDuration(result.legs[0].duration.text); // Définir la durée du trajet
-    if (mapRef.current) {
-      // Ajuster la vue de la carte pour inclure toutes les coordonnées de l'itinéraire
-      mapRef.current.fitToCoordinates(result.coordinates, {
-        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-        animated: true,
-      });
-    }
-  };
-
-  // Réinitialiser les états
-  const resetRoute = () => {
-    setRouteCoordinates([]);
-    setSteps([]);
-    setDistance("");
-    setDuration("");
-  };
-
-  // Gérer la sélection des lieux avec autocomplétion
-  const handlePlaceSelect = (type, details) => {
-    const { geometry } = details;
-    const location = {
-      latitude: geometry.location.lat,
-      longitude: geometry.location.lng,
-    };
-    resetRoute();
-    if (type === "origin") {
-      setOrigin(location);
-    } else if (type === "destination") {
-      setDestination(location);
-    } else if (geometry === null) {
-      setOrigin(location.coords);
-    }
-  };
-  // redirection vers google maps méthode linking/deeplink
-  const openGoogleMaps = () => {
-    if (origin && destination) {
-      const url = `https://www.google.com/maps/dir/?api=1&origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=bicycling`;
-      Linking.openURL(url);
-    }
-  };
-
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //                                                                                                                                                        //
-  //                                                                                                                                                        //
-  //                                                                    BIKES                                                                               //
-  //                                                                                                                                                        //
-  //                                                                                                                                                        //
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  //créer un état pour stocker la data pour chaque marque de vélo
-  const [velib, setVelib] = useState([]);
-  const [lime, setLime] = useState([]);
-  const [dott, setDott] = useState([]);
-  const [tier, setTier] = useState([]);
-
-  //créer un état pour stocker/filtrer les marques devant être visibles
-  const [visibleCompanies, setVisibleCompanies] = useState([
-    "velib",
-    "lime",
-    "dott",
-    "tier",
-  ]);
-
-  const fetchBikes = () => {
-    fetch(
-      `http://192.168.100.78:3000/bikes/${region.latitude}/${region.longitude}`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        setVelib(data.velibData);
-        setLime(data.limeData);
-        // console.log(data.limeData);
-        // setDott(data.dottData);
-        // setTier(data.tierData);
-      });
-  };
-
-  const handleRefreshBikes = () => {
-    fetchBikes();
-  };
-
-  //afficher les vélos disponibles par marque
-  useEffect(() => {
-    region && fetchBikes();
-  }, [locationLoaded]);
-
-  const companies = ["velib", "lime", "dott", "tier"];
-  let allBikes = [];
-
-  let allFilters = [];
-
-  // let companyName = "";
-
-  const handleFilterPress = (str) => {
-    if (visibleCompanies.length === 1) {
-      setVisibleCompanies(["velib", "lime", "dott", "tier"]);
-    } else {
-      setVisibleCompanies([str]);
-    }
-  };
-
-  for (const company of companies) {
-    // companyName = company;
-
-    if (company === "velib") {
-      for (const bike of velib) {
-        let coordinates = {
-          latitude: bike.latitude,
-          longitude: bike.longitude,
-        };
-
-        allBikes.push(
-          <Bike
-            key={bike.stationId}
-            coords={coordinates}
-            bikeType={company}
-            isVisible={
-              visibleCompanies.length === 0
-                ? true
-                : visibleCompanies.some((e) => company === e)
-=======
-    // geolib methode pour calculer la distance entre 2 adress
-    // console.log(destination.latitude, destination.longitude);
-    const reset = () => {
-        setModalVisible(true);
-        disTanceInMeteres = 5000000;
-    };
-    // console.log(region.latitude, region.longitude);
-    const getModal = async () => {
-        const dist = await geolib.getDistance(
-            // la location ou on est
-            {
-                latitude: region.latitude ? region.latitude : null,
-                longitude: region.longitude ? region.longitude : null,
-            },
-            // location ou on va
-            {
-                latitude: destination.latitude ? destination.latitude : null,
-                longitude: destination.longitude ? destination.longitude : null,
->>>>>>> 0d3b5f55fa88a6837a392b03bc10c9a44c8f042e
-            }
-        );
-        const disTanceInMeteres = dist / 10000;
-        if (disTanceInMeteres < 0.2) {
-            console.log("destination reached  ");
-
-            setModalVisible(true);
-        }
-    };
-    const toggleModal = () => {
-        setModalVisible(false);
-    };
-    console.log(getModal());
-
     // Gérer la création d'une destination en appuyant sur la carte
     const handleMapPress = (e) => {
         setDestination(e.nativeEvent.coordinate);
@@ -364,6 +140,40 @@ const MapScreen = () => {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                                                        //
     //                                                                                                                                                        //
+    //                                                                    MODAL ARRIVÉE                                                                       //
+    //                                                                                                                                                        //
+    //                                                                                                                                                        //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // geolib methode pour calculer la distance entre 2 adress
+    const getModal = async () => {
+        const dist = await geolib.getDistance(
+            // la location ou on est
+            {
+                latitude: region.latitude ? region.latitude : null,
+                longitude: region.longitude ? region.longitude : null,
+            },
+            // location ou on va
+            {
+                latitude: destination.latitude ? destination.latitude : null,
+                longitude: destination.longitude ? destination.longitude : null,
+            }
+        );
+        const disTanceInMeteres = dist / 10000;
+        if (disTanceInMeteres < 0.2) {
+            console.log("destination reached  ");
+
+            setModalVisible(true);
+        }
+    };
+    const toggleModal = () => {
+        setModalVisible(false);
+    };
+    getModal();
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                                                                                        //
+    //                                                                                                                                                        //
     //                                                                    BIKES                                                                               //
     //                                                                                                                                                        //
     //                                                                                                                                                        //
@@ -385,7 +195,7 @@ const MapScreen = () => {
 
     const fetchBikes = () => {
         fetch(
-            `http://192.168.100.237:3000/bikes/${region.latitude}/${region.longitude}`
+            `http://192.168.100.119:3000/bikes/${region.latitude}/${region.longitude}`
         )
             .then((response) => response.json())
             .then((data) => {
@@ -410,8 +220,6 @@ const MapScreen = () => {
 
     let allFilters = [];
 
-    // let companyName = "";
-
     const handleFilterPress = (str) => {
         if (visibleCompanies.length === 1) {
             setVisibleCompanies(["velib", "lime", "dott", "tier"]);
@@ -421,8 +229,6 @@ const MapScreen = () => {
     };
 
     for (const company of companies) {
-        // companyName = company;
-
         if (company === "velib") {
             for (const bike of velib) {
                 let coordinates = {
@@ -633,57 +439,11 @@ const MapScreen = () => {
                             strokeWidth={3}
                             strokeColor="#37678A"
                             onReady={handleDirectionsReady}
-
-<<<<<<< HEAD
-              // Appelée lorsque les directions sont prêtes
-            />
-          )}
-          {isModalVisible && (
-            <ArrivalModal selectArrivalModal={selectArrivalModal} />
-          )}
-          {steps.length > 0 && (
-            <View style={styles.directionsContainer}>
-              <View style={styles.kmTps}>
-                <Text style={styles.txtdirections}>Distance: {distance}</Text>
-                <Text style={styles.txtdirections}>Time: {duration}</Text>
-              </View>
-              <View style={styles.directionBtn}>
-                <TouchableOpacity onPress={openGoogleMaps}>
-                  <FontAwesome
-                    name="arrow-circle-right"
-                    size={45}
-                    color="#C1DBF0"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        </>
-      )}
-    </View>
-  );
-=======
-                            // Appelée lorsque les directions sont prêtes
                         />
                     )}
-                    {isModalVisible && (
-                        <View style={styles.containerModal}>
-                            <Button title="Show modal" onPress={toggleModal} />
 
-                            <Modal isVisible={isModalVisible}>
-                                <View style={styles.container}>
-                                    <Text style={styles.text}>
-                                        Destination reached!
-                                    </Text>
-                                    <AntIcon
-                                        name="like2"
-                                        color="#C1DBF0"
-                                        size={250}
-                                        onPress={toggleModal}
-                                    />
-                                </View>
-                            </Modal>
-                        </View>
+                    {isModalVisible && (
+                        <ArrivalModal toggleModal={toggleModal} />
                     )}
                     {steps.length > 0 && (
                         <View style={styles.directionsContainer}>
@@ -710,7 +470,6 @@ const MapScreen = () => {
             )}
         </View>
     );
->>>>>>> 0d3b5f55fa88a6837a392b03bc10c9a44c8f042e
 };
 
 const styles = StyleSheet.create({
@@ -719,12 +478,6 @@ const styles = StyleSheet.create({
         justifyContent: "flex-end",
         alignItems: "center",
     },
-<<<<<<< HEAD
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-=======
     map: {
         ...StyleSheet.absoluteFillObject,
     },
@@ -803,7 +556,6 @@ const styles = StyleSheet.create({
     //   color: "#C1DBF0",
     //   marginBottom: "10%",
     // },
->>>>>>> 0d3b5f55fa88a6837a392b03bc10c9a44c8f042e
 });
 
 export default MapScreen;
