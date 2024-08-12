@@ -1,26 +1,48 @@
-import { StyleSheet, Text, View, Modal, TouchableOpacity } from "react-native";
-import React from "react";
-import { useState, useEffect } from "react";
+import { StyleSheet, Text, View, Button } from "react-native";
+import React, { useState } from "react";
+import Modal from "react-native-modal";
+import AntIcon from "react-native-vector-icons/AntDesign";
 
 export default function ArrivalModal() {
-    const [modalVisible, setModalVisible] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(true);
 
-    if (location.coord === details.geometry.location) {
-        setModalVisible(true);
-    }
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
 
-    return (
-        <View>
-            <Modal visible={modalVisible} animationType="fade">
-                <View style={styles.modalView}>
-                    <TouchableOpacity>
-                        <Text>DESTINATION REACHED !</Text>
-                        <Fontawesome></Fontawesome>
-                    </TouchableOpacity>
-                </View>
-            </Modal>
+  return (
+    <View style={styles.containerModal}>
+      <Modal isVisible={isModalVisible}>
+        <View style={styles.container}>
+          <Text style={styles.text}>Destination reached!</Text>
+          <AntIcon
+            name="like2"
+            color="#C1DBF0"
+            size={250}
+            onPress={toggleModal}
+          />
         </View>
-    );
+      </Modal>
+    </View>
+  );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  containerModal: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  container: {
+    minHeight: "50%",
+    backgroundColor: "#303F4A",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: "50",
+  },
+  text: {
+    fontSize: "30%",
+    color: "#C1DBF0",
+    marginBottom: "10%",
+  },
+});

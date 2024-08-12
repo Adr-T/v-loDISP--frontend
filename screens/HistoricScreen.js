@@ -8,7 +8,7 @@ export default function HistoricScreen() {
   const [data, setData] = useState(null);
   useEffect(() => {
     // fetch pour recuperer les donné
-    fetch(`http://192.168.100.78:3000/rides/ss`)
+    fetch(`http://192.168.100.119:3000/rides/ss`)
       .then((response) => response.json())
       .then((data) => {
         // on recuper la data

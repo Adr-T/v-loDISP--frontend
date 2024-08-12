@@ -2,12 +2,13 @@ import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useEffect, useState } from "react";
+
 export default function AlertScreen() {
   // state pour recupere data de l'alert
 
   const [dataAlert, setDataAlert] = useState(null);
   useEffect(() => {
-    fetch(`http://192.168.100.78:3000/alerts`)
+    fetch(`http://192.168.100.119:3000/alerts`)
       .then((response) => response.json())
       .then((data) => {
         setDataAlert(data.dataOriginal);

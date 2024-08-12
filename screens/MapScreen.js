@@ -9,6 +9,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Platform,
+    Modal,
 } from "react-native";
 import MapView, {
     Marker,
@@ -24,10 +25,8 @@ import { Linking } from "react-native"; // pour permettre de rediriger vers Goog
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Bike from "../components/Bike";
 import BikeFilter from "../components/BikeFilter";
-import { getDistance } from "geolib";
+import ArrivalModal from "../components/ArrivalModal";
 import * as geolib from "geolib";
-import ArrivalModal from "../screens/ArrivalModal";
-import Modal from "react-native-modal";
 import AntIcon from "react-native-vector-icons/AntDesign";
 
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
@@ -86,38 +85,6 @@ const MapScreen = () => {
         })();
     }, []);
 
-    // geolib methode pour calculer la distance entre 2 adress
-    // console.log(destination.latitude, destination.longitude);
-    const reset = () => {
-        setModalVisible(true);
-        disTanceInMeteres = 5000000;
-    };
-    // console.log(region.latitude, region.longitude);
-    const getModal = async () => {
-        const dist = await geolib.getDistance(
-            // la location ou on est
-            {
-                latitude: region.latitude ? region.latitude : null,
-                longitude: region.longitude ? region.longitude : null,
-            },
-            // location ou on va
-            {
-                latitude: destination.latitude ? destination.latitude : null,
-                longitude: destination.longitude ? destination.longitude : null,
-            }
-        );
-        const disTanceInMeteres = dist / 10000;
-        if (disTanceInMeteres < 0.2) {
-            console.log("destination reached  ");
-
-            setModalVisible(true);
-        }
-    };
-    const toggleModal = () => {
-        setModalVisible(false);
-    };
-    console.log(getModal());
-
     // Gérer la création d'une destination en appuyant sur la carte
     const handleMapPress = (e) => {
         setDestination(e.nativeEvent.coordinate);
@@ -173,6 +140,40 @@ const MapScreen = () => {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                                                        //
     //                                                                                                                                                        //
+    //                                                                    MODAL ARRIVÉE                                                                       //
+    //                                                                                                                                                        //
+    //                                                                                                                                                        //
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // geolib methode pour calculer la distance entre 2 adress
+    const getModal = async () => {
+        const dist = await geolib.getDistance(
+            // la location ou on est
+            {
+                latitude: region.latitude ? region.latitude : null,
+                longitude: region.longitude ? region.longitude : null,
+            },
+            // location ou on va
+            {
+                latitude: destination.latitude ? destination.latitude : null,
+                longitude: destination.longitude ? destination.longitude : null,
+            }
+        );
+        const disTanceInMeteres = dist / 10000;
+        if (disTanceInMeteres < 0.2) {
+            console.log("destination reached  ");
+
+            setModalVisible(true);
+        }
+    };
+    const toggleModal = () => {
+        setModalVisible(false);
+    };
+    getModal();
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //                                                                                                                                                        //
+    //                                                                                                                                                        //
     //                                                                    BIKES                                                                               //
     //                                                                                                                                                        //
     //                                                                                                                                                        //
@@ -194,7 +195,7 @@ const MapScreen = () => {
 
     const fetchBikes = () => {
         fetch(
-            `http://192.168.100.237:3000/bikes/${region.latitude}/${region.longitude}`
+            `http://192.168.100.119:3000/bikes/${region.latitude}/${region.longitude}`
         )
             .then((response) => response.json())
             .then((data) => {
@@ -219,8 +220,6 @@ const MapScreen = () => {
 
     let allFilters = [];
 
-    // let companyName = "";
-
     const handleFilterPress = (str) => {
         if (visibleCompanies.length === 1) {
             setVisibleCompanies(["velib", "lime", "dott", "tier"]);
@@ -230,8 +229,6 @@ const MapScreen = () => {
     };
 
     for (const company of companies) {
-        // companyName = company;
-
         if (company === "velib") {
             for (const bike of velib) {
                 let coordinates = {
@@ -442,28 +439,11 @@ const MapScreen = () => {
                             strokeWidth={3}
                             strokeColor="#37678A"
                             onReady={handleDirectionsReady}
-
-                            // Appelée lorsque les directions sont prêtes
                         />
                     )}
-                    {isModalVisible && (
-                        <View style={styles.containerModal}>
-                            <Button title="Show modal" onPress={toggleModal} />
 
-                            <Modal isVisible={isModalVisible}>
-                                <View style={styles.container}>
-                                    <Text style={styles.text}>
-                                        Destination reached!
-                                    </Text>
-                                    <AntIcon
-                                        name="like2"
-                                        color="#C1DBF0"
-                                        size={250}
-                                        onPress={toggleModal}
-                                    />
-                                </View>
-                            </Modal>
-                        </View>
+                    {isModalVisible && (
+                        <ArrivalModal toggleModal={toggleModal} />
                     )}
                     {steps.length > 0 && (
                         <View style={styles.directionsContainer}>
