@@ -6,6 +6,7 @@ export default function Bike(props) {
         <Marker
             coordinate={props.coords}
             style={{ display: props.isVisible ? "flex" : "none" }}
+            onPress={() => props.onPress()}
         >
             <FontAwesome
                 name="bicycle"
