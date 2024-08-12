@@ -1,21 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  StyleSheet,
-  Dimensions,
-  ScrollView,
-  TouchableOpacity,
-  Platform,
-} from "react-native";
-import MapView, {
-  Marker,
-  Polyline,
-  PROVIDER_GOOGLE,
-  PROVIDER_DEFAULT,
-} from "react-native-maps";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import MapView, { Marker, Polyline } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -24,11 +9,8 @@ import { Linking } from "react-native"; // pour permettre de rediriger vers Goog
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Bike from "../components/Bike";
 import BikeFilter from "../components/BikeFilter";
-import { getDistance } from "geolib";
-import * as geolib from "geolib";
 import ArrivalModal from "../screens/ArrivalModal";
-import Modal from "react-native-modal";
-import AntIcon from "react-native-vector-icons/AntDesign";
+import * as geolib from "geolib";
 
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
@@ -114,17 +96,19 @@ const MapScreen = () => {
         longitude: destination.longitude ? destination.longitude : null,
       }
     );
+    // on divise la distanc pour avoir de disntance en metre
     const disTanceInMeteres = dist / 10000;
     if (disTanceInMeteres < 0.2) {
-      console.log("destination reached  ");
-
-      setModalVisible(true);
+      // console.log("destination reached  ");
+      selectArrivalModal();
     }
   };
-  const toggleModal = () => {
-    setModalVisible(false);
+  // on appeele une ucntion qui envoi linfromation au composont
+  const selectArrivalModal = () => {
+    setModalVisible(true);
   };
-  console.log(getModal());
+
+  getModal();
 
   // Gérer la création d'une destination en appuyant sur la carte
   const handleMapPress = (e) => {
@@ -208,6 +192,7 @@ const MapScreen = () => {
       .then((data) => {
         setVelib(data.velibData);
         setLime(data.limeData);
+        // console.log(data.limeData);
         // setDott(data.dottData);
         // setTier(data.tierData);
       });
@@ -444,21 +429,7 @@ const MapScreen = () => {
             />
           )}
           {isModalVisible && (
-            <View style={styles.containerModal}>
-              <Button title="Show modal" onPress={toggleModal} />
-
-              <Modal isVisible={isModalVisible}>
-                <View style={styles.container}>
-                  <Text style={styles.text}>Destination reached!</Text>
-                  <AntIcon
-                    name="like2"
-                    color="#C1DBF0"
-                    size={250}
-                    onPress={toggleModal}
-                  />
-                </View>
-              </Modal>
-            </View>
+            <ArrivalModal selectArrivalModal={selectArrivalModal} />
           )}
           {steps.length > 0 && (
             <View style={styles.directionsContainer}>
@@ -550,23 +521,6 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
   },
-  // containerModal: {
-  //   // flex: 1,
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  // },
-  // container: {
-  //   minHeight: "50%",
-  //   backgroundColor: "#303F4A",
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  //   borderRadius: "50",
-  // },
-  // text: {
-  //   fontSize: "30%",
-  //   color: "#C1DBF0",
-  //   marginBottom: "10%",
-  // },
 });
 
 export default MapScreen;
