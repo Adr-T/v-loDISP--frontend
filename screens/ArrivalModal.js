@@ -4,7 +4,7 @@ import Modal from "react-native-modal";
 import AntIcon from "react-native-vector-icons/AntDesign";
 
 export default function ArrivalModal() {
-  const [isModalVisible, setModalVisible] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(true);
 
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
@@ -12,8 +12,6 @@ export default function ArrivalModal() {
 
   return (
     <View style={styles.containerModal}>
-      <Button title="Show modal" onPress={toggleModal} />
-
       <Modal isVisible={isModalVisible}>
         <View style={styles.container}>
           <Text style={styles.text}>Destination reached!</Text>
