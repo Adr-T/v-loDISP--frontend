@@ -150,18 +150,18 @@ const MapScreen = () => {
     const dist = await geolib.getDistance(
       // la location ou on est
       {
-        latitude: region.latitude ? region.latitude : null,
-        longitude: region.longitude ? region.longitude : null,
+        latitude: region?.latitude ? region.latitude : null,
+        longitude: region?.longitude ? region.longitude : null,
       },
       // location ou on va
       {
-        latitude: destination.latitude ? destination.latitude : null,
-        longitude: destination.longitude ? destination.longitude : null,
+        latitude: destination?.latitude ? destination.latitude : null,
+        longitude: destination?.longitude ? destination.longitude : null,
       }
     );
     const disTanceInMeteres = dist / 10000;
     if (disTanceInMeteres < 0.2) {
-      console.log("destination reached  ");
+      //   console.log("destination reached  ");
 
       setModalVisible(true);
     }
@@ -209,7 +209,7 @@ const MapScreen = () => {
 
   const fetchBikes = () => {
     fetch(
-      `http://192.168.100.237:3000/bikes/${region.latitude}/${region.longitude}`
+      `http://192.168.100.119:3000/bikes/${region.latitude}/${region.longitude}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -476,6 +476,7 @@ const MapScreen = () => {
         bikeType={selectedBikeType}
         modalVisible={bikeModalVisible}
         closeModal={() => setBikeModalVisible(false)}
+        style={styles.bikeModal}
       />
     </View>
   );
@@ -535,48 +536,21 @@ const styles = StyleSheet.create({
     top: 180,
   },
   refreshBikes: {
-    // zIndex: 99,
-    // position: "absolute",
-    // top: 175,
-    // left: 200,
     width: 25,
     height: 25,
     borderRadius: 60,
     borderWidth: 2,
     borderColor: "#323232",
     backgroundColor: "#fff",
-    // marginTop: 10,
     justifyContent: "center",
     alignItems: "center",
-    // borderRadius: 10,
-    // width: "100%",
-
-    // shadowColor: "#000",
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 2,
-    // },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 4,
-    // elevation: 5,
   },
-  // containerModal: {
-  //   // flex: 1,
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  // },
-  // container: {
-  //   minHeight: "50%",
-  //   backgroundColor: "#303F4A",
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  //   borderRadius: "50",
-  // },
-  // text: {
-  //   fontSize: "30%",
-  //   color: "#C1DBF0",
-  //   marginBottom: "10%",
-  // },
+
+  bikeModal: {
+    zIndex: 99,
+    position: "absolute",
+    bottom: 180,
+  },
 });
 
 export default MapScreen;
