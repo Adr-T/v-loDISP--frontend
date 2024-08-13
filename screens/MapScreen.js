@@ -262,13 +262,13 @@ const MapScreen = () => {
     let allFilters = [
         <BikeFilter
             key="all bikes"
-            handleFilterPress={(e) => handleFilterPress(e)}
+            handleFilterPress={() => handleFilterPress()}
             bikeType="all"
         />,
     ];
 
     const handleFilterPress = (str) => {
-        if (visibleCompanies.length === 1) {
+        if (!str) {
             setVisibleCompanies(["velib", "lime", "dott", "tier"]);
         } else {
             setVisibleCompanies([str]);
@@ -293,7 +293,7 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
-                        //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non)
+                        //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non pour l'utiliser et adapter la taille de l'icône)
                         isSelected={
                             bike.latitude === selectedCoords?.latitude &&
                             bike.longitude === selectedCoords?.longitude
@@ -336,7 +336,7 @@ const MapScreen = () => {
             allFilters.push(
                 <BikeFilter
                     key={company}
-                    handleFilterPress={handleFilterPress}
+                    handleFilterPress={(e) => handleFilterPress(e)}
                     bikeType={company}
                 />
             );
@@ -367,7 +367,7 @@ const MapScreen = () => {
             allFilters.push(
                 <BikeFilter
                     key={company}
-                    handleFilterPress={handleFilterPress}
+                    handleFilterPress={(e) => handleFilterPress(e)}
                     bikeType={company}
                 />
             );
@@ -398,7 +398,7 @@ const MapScreen = () => {
             allFilters.push(
                 <BikeFilter
                     key={company}
-                    handleFilterPress={handleFilterPress}
+                    handleFilterPress={(e) => handleFilterPress(e)}
                     bikeType={company}
                 />
             );
