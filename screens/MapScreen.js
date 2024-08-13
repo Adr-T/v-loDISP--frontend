@@ -217,11 +217,21 @@ const MapScreen = () => {
     //Mise en place d'un état pour stocker temprairement le type de vélo (velib, ...)
     const [selectedBikeType, setSelectedBikeType] = useState("");
 
+    //Mise en place d'un état pour stocker temporairement les coordonnées d'un vélo pour l'isoler des autres
+    const [selectedCoords, setSelectedCoords] = useState(null);
+
+    //Mise en place d'une fonction closeModal permettant de faire passer de nouveau la valeur de bikeModalVisible à false et stocker cette valeur dans le reducer bikeSize
+    const closeModal = () => {
+        setBikeModalVisible(false);
+        setSelectedCoords(null); //réinitialiser l'état selectedCoords
+    };
+
     //afficher la modale onPress sur l'icône d'un vélo
-    const handlePressBike = (company) => {
+    const handlePressBike = (company, coords = null) => {
         //type de vélo passé en argument de la fonction
-        setSelectedBikeType(company); //stocker le type de vélo
         setBikeModalVisible(true); //passer la modale à visible
+        setSelectedBikeType(company); //stocker le type de vélo
+        setSelectedCoords(coords); //stocker les coordonnées d'un vélo pour pouvoir l'isoler des autres
     };
 
     const fetchBikes = () => {
@@ -283,7 +293,12 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
-                        onPress={() => handlePressBike(company)} //invoquer la fonction handlePressBike
+                        //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non)
+                        isSelected={
+                            bike.latitude === selectedCoords?.latitude &&
+                            bike.longitude === selectedCoords?.longitude
+                        }
+                        onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
                     />
                 );
             }
@@ -310,7 +325,11 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
-                        onPress={() => handlePressBike(company)}
+                        isSelected={
+                            bike.latitude === selectedCoords?.latitude &&
+                            bike.longitude === selectedCoords?.longitude
+                        }
+                        onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
                     />
                 );
             }
@@ -337,7 +356,11 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
-                        onPress={() => handlePressBike(company)}
+                        isSelected={
+                            bike.latitude === selectedCoords?.latitude &&
+                            bike.longitude === selectedCoords?.longitude
+                        }
+                        onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
                     />
                 );
             }
@@ -364,7 +387,11 @@ const MapScreen = () => {
                                 ? true
                                 : visibleCompanies.some((e) => company === e)
                         }
-                        onPress={() => handlePressBike(company)}
+                        isSelected={
+                            bike.latitude === selectedCoords?.latitude &&
+                            bike.longitude === selectedCoords?.longitude
+                        }
+                        onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
                     />
                 );
             }
@@ -527,7 +554,7 @@ const MapScreen = () => {
             <BikeModal
                 bikeType={selectedBikeType}
                 modalVisible={bikeModalVisible}
-                closeModal={() => setBikeModalVisible(false)}
+                closeModal={() => closeModal()}
                 style={styles.bikeModal}
             />
         </View>
