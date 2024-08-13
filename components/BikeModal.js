@@ -53,11 +53,12 @@ export default function BikeModal({ modalVisible, closeModal, bikeType }) {
         <View>
             {/*Créer la balise Modal avec propriété visible passée avec la props modalVisible*/}
             <Modal
+                style={styles.modalContainer}
                 visible={modalVisible}
                 animationType="fade"
                 transparent={true}
             >
-                <View style={styles.modalView}>
+                <View style={styles.blocko}>
                     <TouchableOpacity>
                         <FontAwesome
                             style={styles.closeBtn}
@@ -67,14 +68,12 @@ export default function BikeModal({ modalVisible, closeModal, bikeType }) {
                             onPress={() => closeModal()}
                         />
                     </TouchableOpacity>
+
                     <TouchableOpacity
                         style={styles.openAppBtn}
                         onPress={() => openExternalApp()}
                     >
                         <Text>unlock and pay this bike !</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => handleCloseModal()}>
-                        <Text>X</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>
@@ -83,17 +82,37 @@ export default function BikeModal({ modalVisible, closeModal, bikeType }) {
 }
 
 const styles = StyleSheet.create({
-    modalView: {
-        // flex: 1,
-        width: "60%",
-        height: "40%",
-        backgroundColor: "#ffffff",
+    modalContainer: {
         justifyContent: "center",
+        alignItems: "center",
+        flex: 1,
+        backgroundColor: "red",
+        borderRadius: 20,
     },
+    blocko: {
+        height: 200,
+        width: 120,
+        backgroundColor: "red",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
     closeBtn: {
-        justifyContent: "flex-end",
+        zIndex: 99,
+        position: "absolute",
+        right: 10,
     },
+
     openAppBtn: {
-        justifyContent: "center",
+        zIndex: 99,
+        position: "absolute",
+        bottom: 130,
+        left: 40,
+        // justifyContent: "center",
+        // alignItems: "center",
+        backgroundColor: "#C0DCF0",
+        borderRadius: 20,
+        width: "80%",
+        height: 30,
     },
 });
