@@ -1,31 +1,57 @@
-import { StyleSheet, Text, View, Button } from "react-native";
-import React, { useState } from "react";
+import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
 import Modal from "react-native-modal";
 // import AntIcon from "react-native-vector-icons/AntDesign";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import Entypo from "react-native-vector-icons/Entypo";
 
 export default function ArrivalModal() {
-  const [isModalVisible, setModalVisible] = useState(true);
-  const [bikeNote, setBikeNote] = useState(0);
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
-  let style = null;
+  // affichage de modal
+  const [isModalVisible, setModalVisible] = useState(true);
+  // variable pour utiliser de recuperer nombre detoile
+  const [rating, setRating] = useState(0);
+  // variable pour noté velo
+  const [noteVelo, setNoteVelo] = useState(null);
+  //variable  pour noté le trajet
+  const [noteRide, setNoteRide] = useState("");
+  // affichage des star
+  const [afficheStar, setAfficheStar] = useState(null);
+  // pour calculer l'index ou on a clické
+  const handleStarPress = (starIndex) => {
+    setRating(starIndex + 1);
+  };
 
-  const noteStars = [];
-  for (let i = 0; i < 5; i++) {
-    if (i < bikeNote) {
-      style = { color: "#2196f3" };
+  const renderStars = () => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      const isFilled = i < rating;
+      const starColor = isFilled ? "#C0DCF0" : "DCDCDC";
+      stars.push(
+        <TouchableOpacity key={i} onPress={() => handleStarPress(i)}>
+          <FontAwesome name="star" size={"44%"} color={starColor} />
+        </TouchableOpacity>
+      );
     }
-    noteStars.push(
-      <FontAwesome
-        key={i}
-        name="star-o"
-        onPress={() => setBikeNote(i + 1)}
-        style={style}
-      />
-    );
+    setNoteVelo(rating);
+
+    return setAfficheStar(stars);
+  };
+  if (isModalVisible) {
+    renderStars();
   }
+  useEffect(() => {
+    fetch("http://192.168.100.78:3000/stats", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        noteVelo: noteVelo,
+        noteRide: noteRide,
+      }),
+    }).then((response) => response.json());
+  }, [noteVelo]);
 
   return (
     <View style={styles.containerModal}>
@@ -42,6 +68,40 @@ export default function ArrivalModal() {
             />
             <Text style={styles.text}>back to VeloDISPØ</Text>
           </View>
+          <View style={styles.main}>
+            <Text>{afficheStar}</Text>
+
+            <Text style={styles.textRate}>Rate your Bake!</Text>
+          </View>
+          <View style={styles.emojiContainer}>
+            <View style={styles.emoji}>
+              <Entypo
+                style={styles.btn}
+                name="emoji-sad"
+                size={25}
+                onPress={() => {
+                  setNoteRide("bad");
+                }}
+              />
+              <Entypo
+                style={styles.btn}
+                name="emoji-neutral"
+                size={25}
+                onPress={() => {
+                  setNoteRide("moyen");
+                }}
+              />
+              <Entypo
+                style={styles.btn}
+                name="emoji-happy"
+                size={25}
+                onPress={() => {
+                  setNoteRide("top");
+                }}
+              />
+            </View>
+            <Text style={styles.textRate}>How was your ride?</Text>
+          </View>
         </View>
       </Modal>
     </View>
@@ -52,27 +112,49 @@ const styles = StyleSheet.create({
   containerModal: {
     flex: 1,
     alignItems: "center",
-    justifyContent: "center",
   },
   container: {
     minHeight: "50%",
     backgroundColor: "#303F4A",
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-around",
     borderRadius: "50",
   },
   text: {
-    fontSize: "30%",
+    fontSize: "20%",
     color: "#C1DBF0",
     marginBottom: "10%",
   },
   header: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+  },
+  iconStar: {
+    fontSize: "44%",
+    marginBottom: "40%",
+    color: "#DCDCDC",
+  },
+  textRate: {
+    marginTop: "5%",
+    color: "#C0DCF0",
+    fontSize: "20%",
   },
   btn: {
     fontSize: "50%",
+    color: "#C0DCF0",
+  },
+  emojiContainer: {
+    alignItems: "center",
+  },
+  emoji: {
+    width: "55%",
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
+  main: {
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
 

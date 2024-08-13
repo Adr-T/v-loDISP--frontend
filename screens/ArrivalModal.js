@@ -19,7 +19,7 @@ export default function ArrivalModal() {
             name="like2"
             color="#C1DBF0"
             size={250}
-            onPress={toggleModal}
+            onPress={() => toggleModal()}
           />
         </View>
       </Modal>
