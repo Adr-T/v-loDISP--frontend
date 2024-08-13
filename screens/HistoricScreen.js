@@ -4,7 +4,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useSelector } from "react-redux";
-
+// import NoteModalScreen from "../components/NoteModalScreen";
 export default function HistoricScreen() {
   // variable declarer avec useSelector pour recuperer token de lutilisateur depuis recuer
   const token = useSelector((state) => state.user.value.token);
@@ -59,6 +59,7 @@ export default function HistoricScreen() {
   return (
     <View style={styles.container}>
       <Text>{historique ? historique : user}</Text>
+      {/* <NoteModalScreen /> */}
     </View>
   );
 }

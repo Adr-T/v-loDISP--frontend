@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, Button, TouchableOpacity } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "react-native-modal";
 // import AntIcon from "react-native-vector-icons/AntDesign";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
@@ -9,10 +9,17 @@ export default function ArrivalModal() {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };
+  // affichage de modal
   const [isModalVisible, setModalVisible] = useState(true);
-
+  // variable pour utiliser de recuperer nombre detoile
   const [rating, setRating] = useState(0);
-
+  // variable pour noté velo
+  const [noteVelo, setNoteVelo] = useState(null);
+  //variable  pour noté le trajet
+  const [noteRide, setNoteRide] = useState("");
+  // affichage des star
+  const [afficheStar, setAfficheStar] = useState(null);
+  // pour calculer l'index ou on a clické
   const handleStarPress = (starIndex) => {
     setRating(starIndex + 1);
   };
@@ -28,9 +35,24 @@ export default function ArrivalModal() {
         </TouchableOpacity>
       );
     }
+    setNoteVelo(rating);
 
-    return stars;
+    return setAfficheStar(stars);
   };
+  if (isModalVisible) {
+    renderStars();
+  }
+  useEffect(() => {
+    fetch("http://192.168.100.78:3000/stats", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        noteVelo: noteVelo,
+        noteRide: noteRide,
+      }),
+    }).then((response) => response.json());
+  }, [noteVelo]);
+
   return (
     <View style={styles.containerModal}>
       <Modal isVisible={isModalVisible}>
@@ -47,7 +69,7 @@ export default function ArrivalModal() {
             <Text style={styles.text}>back to VeloDISPØ</Text>
           </View>
           <View style={styles.main}>
-            <Text>{renderStars()}</Text>
+            <Text>{afficheStar}</Text>
 
             <Text style={styles.textRate}>Rate your Bake!</Text>
           </View>
@@ -58,7 +80,7 @@ export default function ArrivalModal() {
                 name="emoji-sad"
                 size={25}
                 onPress={() => {
-                  setModalVisible(false);
+                  setNoteRide("bad");
                 }}
               />
               <Entypo
@@ -66,7 +88,7 @@ export default function ArrivalModal() {
                 name="emoji-neutral"
                 size={25}
                 onPress={() => {
-                  setModalVisible(false);
+                  setNoteRide("moyen");
                 }}
               />
               <Entypo
@@ -74,7 +96,7 @@ export default function ArrivalModal() {
                 name="emoji-happy"
                 size={25}
                 onPress={() => {
-                  setModalVisible(false);
+                  setNoteRide("top");
                 }}
               />
             </View>
