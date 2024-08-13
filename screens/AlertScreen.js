@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     marginBottom: "2%",
     letterSpacing: 3,
     fontWeight: "bold",
-    color: "yellow",
+    color: "#C0DCF0",
   },
   textAlertContainer: {
     alignItems: "center",
