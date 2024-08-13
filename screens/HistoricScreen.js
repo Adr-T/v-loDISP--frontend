@@ -1,35 +1,37 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+// librairie qui convertir la date
+import { format, compareAsc } from "date-fns";
 
 import { useEffect, useState } from "react";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useSelector } from "react-redux";
-// import NoteModalScreen from "../components/NoteModalScreen";
+
 export default function HistoricScreen() {
   // variable declarer avec useSelector pour recuperer token de lutilisateur depuis recuer
   const token = useSelector((state) => state.user.value.token);
-  // j'ai declaré une variable token en dur pour tester fetch
-  // const token = "TedXtHSkWBVc_i2r6cL8KvlHNubupc-S";
 
   // variable pour recuperer les donee
   const [data, setData] = useState(null);
   useEffect(() => {
     // fetch pour recuperer les donné
-    fetch("http://192.168.100.78:3000/rides/historique", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token: token,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
-        if (data.result) {
-          setData(data.trajet);
-        }
-      });
+    token &&
+      fetch("http://172.20.10.2:3000/rides/historique", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: token,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
+          if (data.result) {
+            setData(data.trajet);
+          }
+        });
   }, []);
+
   // on utilise une variable pour afficher a la fin les element retourne apres d'avoir utiliser le map sur la data q'on  a recu
   const historique =
     data &&
@@ -43,7 +45,9 @@ export default function HistoricScreen() {
             <Text style={styles.text}>Depart: {el.departure}</Text>
             <Text style={styles.text}>arrival: {el.arrival}</Text>
             <Text style={styles.text}>traveltime: {el.travelTime}</Text>
-            <Text style={styles.text}>date: {el.date}</Text>
+            <Text style={styles.text}>
+              date: {format(el.date, "MM/dd/yyyy")}
+            </Text>
           </View>
         </View>
       );
@@ -59,7 +63,6 @@ export default function HistoricScreen() {
   return (
     <View style={styles.container}>
       <Text>{historique ? historique : user}</Text>
-      {/* <NoteModalScreen /> */}
     </View>
   );
 }

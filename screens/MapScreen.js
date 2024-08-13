@@ -28,6 +28,7 @@ import BikeFilter from "../components/BikeFilter"; //importer le composant BikeF
 import BikeModal from "../components/BikeModal"; //importer le composant BikeModal afin de l'utiliser dans Mapscreen
 import ArrivalModal from "../components/ArrivalModal";
 import * as geolib from "geolib";
+import { useSelector } from "react-redux";
 
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
@@ -146,30 +147,30 @@ const MapScreen = () => {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   // geolib methode pour calculer la distance entre 2 adress
-  const getModal = async () => {
-    const dist = await geolib.getDistance(
-      // la location ou on est
-      {
-        latitude: region.latitude ? region.latitude : null,
-        longitude: region.longitude ? region.longitude : null,
-      },
-      // location ou on va
-      {
-        latitude: destination.latitude ? destination.latitude : null,
-        longitude: destination.longitude ? destination.longitude : null,
-      }
-    );
-    const disTanceInMeteres = dist / 10000;
-    if (disTanceInMeteres < 0.2) {
-      console.log("destination reached  ");
+  // const getModal = async () => {
+  //   const dist = await geolib.getDistance(
+  //     // la location ou on est
+  //     {
+  //       latitude: region.latitude ? region.latitude : null,
+  //       longitude: region.longitude ? region.longitude : null,
+  //     },
+  //     // location ou on va
+  //     {
+  //       latitude: destination.latitude ? destination.latitude : null,
+  //       longitude: destination.longitude ? destination.longitude : null,
+  //     }
+  //   );
+  //   const disTanceInMeteres = dist / 10000;
+  //   if (disTanceInMeteres < 0.2) {
+  //     console.log("destination reached  ");
 
-      setModalVisible(true);
-    }
-  };
+  //     setModalVisible(true);
+  //   }
+  // };
   const toggleModal = () => {
     setModalVisible(false);
   };
-  getModal();
+  // getModal();
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                                                                        //
@@ -209,7 +210,7 @@ const MapScreen = () => {
 
   const fetchBikes = () => {
     fetch(
-      `http://192.168.100.237:3000/bikes/${region.latitude}/${region.longitude}`
+      `http://172.20.10.2:3000/bikes/${region.latitude}/${region.longitude}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -355,6 +356,25 @@ const MapScreen = () => {
     }
   }
 
+  const token = useSelector((state) => state.user.value.token);
+
+  useEffect(() => {
+    if (origin && destination && duration) {
+      token &&
+        fetch("http://172.20.10.2:3000/rides", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            depart: origin,
+            arrival: destination,
+            travelTime: duration,
+            token: token,
+          }),
+        })
+          .then((response) => response.json())
+          .then(() => {});
+    }
+  }, [duration]);
   return (
     <View style={styles.container}>
       {region && (
