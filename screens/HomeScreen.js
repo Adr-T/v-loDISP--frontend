@@ -71,7 +71,10 @@ export default function HomeScreen({ navigation }) {
                 color="#C1DBF0"
               />
             </TouchableOpacity>
-            <ConnectionUser />
+            <ConnectionUser
+              navigation={navigation}
+              setModalVisible={setModalVisible}
+            />
           </View>
         </View>
       </Modal>

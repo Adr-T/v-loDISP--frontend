@@ -19,7 +19,7 @@
     "@react-navigation/native": "6",
     "@react-navigation/native-stack": "6",
     "@reduxjs/toolkit": "^2.2.7",
-    "dotenv": "^16.4.5",
+    "date-fns": "^3.6.0",
     "expo": "~51.0.24",
     "expo-auth-session": "~5.5.2",
     "expo-constants": "^16.0.2",

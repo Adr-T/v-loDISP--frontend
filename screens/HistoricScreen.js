@@ -15,20 +15,21 @@ export default function HistoricScreen() {
   const [data, setData] = useState(null);
   useEffect(() => {
     // fetch pour recuperer les donné
-    fetch("http://192.168.100.78:3000/rides/historique", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        token: token,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
-        if (data.result) {
-          setData(data.trajet);
-        }
-      });
+    token &&
+      fetch("${BACKEND_ADDRESS}/rides/historique", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: token,
+        }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
+          if (data.result) {
+            setData(data.trajet);
+          }
+        });
   }, []);
   // on utilise une variable pour afficher a la fin les element retourne apres d'avoir utiliser le map sur la data q'on  a recu
   const historique =
@@ -43,7 +44,9 @@ export default function HistoricScreen() {
             <Text style={styles.text}>Depart: {el.departure}</Text>
             <Text style={styles.text}>arrival: {el.arrival}</Text>
             <Text style={styles.text}>traveltime: {el.travelTime}</Text>
-            <Text style={styles.text}>date: {el.date}</Text>
+            <Text style={styles.text}>
+              date: {format(el.date, "MM/dd/yyyy")}
+            </Text>
           </View>
         </View>
       );

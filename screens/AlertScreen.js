@@ -6,41 +6,37 @@ import { useEffect, useState } from "react";
 export default function AlertScreen() {
     // state pour recupere data de l'alert
 
-    const [dataAlert, setDataAlert] = useState(null);
-    useEffect(() => {
-        fetch(`http://192.168.100.237:3000/alerts`)
-            .then((response) => response.json())
-            .then((data) => {
-                setDataAlert(data.dataOriginal);
-            });
-    }, []);
-    // on boucle la data et on va mettre dans un variable pour afficher et retourner le resultat
-    const afficheAlert =
-        dataAlert &&
-        dataAlert.map((el, index) => {
-            return (
-                <View style={styles.alertContainer} key={index}>
-                    <View style={styles.iconAlert}>
-                        <FontAwesome
-                            name="bell"
-                            size={25}
-                            color="white"
-                        ></FontAwesome>
-                    </View>
-                    <View style={styles.textAlertContainer}>
-                        <Text style={styles.textAlert}>ALERT</Text>
-                        <Text style={styles.text}>{el.name}</Text>
-                    </View>
-                </View>
-            );
-        });
-    return (
-        <SafeAreaView style={styles.container}>
-            <ScrollView style={styles.scrollView} indicatorStyle="white">
-                {afficheAlert}
-            </ScrollView>
-        </SafeAreaView>
-    );
+  const [dataAlert, setDataAlert] = useState(null);
+  useEffect(() => {
+    fetch(`${FRONTEND_ADDRESS}/alerts`)
+      .then((response) => response.json())
+      .then((data) => {
+        setDataAlert(data.dataOriginal);
+      });
+  }, []);
+  // on boucle la data et on va mettre dans un variable pour afficher et retourner le resultat
+  const afficheAlert =
+    dataAlert &&
+    dataAlert.map((el, index) => {
+      return (
+        <View style={styles.alertContainer} key={index}>
+          <View style={styles.iconAlert}>
+            <FontAwesome name="bell" size={25} color="white"></FontAwesome>
+          </View>
+          <View style={styles.textAlertContainer}>
+            <Text style={styles.textAlert}>ALERT</Text>
+            <Text style={styles.text}>{el.name}</Text>
+          </View>
+        </View>
+      );
+    });
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView} indicatorStyle="white">
+        {afficheAlert}
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 const styles = StyleSheet.create({
