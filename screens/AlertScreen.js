@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function AlertScreen() {
   // state pour recupere data de l'alert
-
+  const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
   const [dataAlert, setDataAlert] = useState(null);
   useEffect(() => {
     fetch(`${FRONTEND_ADDRESS}/alerts`)
@@ -54,7 +54,8 @@ const styles = StyleSheet.create({
     borderColor: "white",
     marginBottom: "1%",
     padding: 15,
-    width: "90%",
+    width: "99%",
+    borderRadius: 10,
   },
   iconAlert: {
     alignItems: "center",

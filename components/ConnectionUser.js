@@ -14,6 +14,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import GoogleSignIn from "./GoogleSignin";
 import { login } from "../reducers/user";
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
 const ConnectionUser = ({ navigation, setModalVisible }) => {
   // Initialisation du hook dispatch pour envoyer des actions à Redux
@@ -93,6 +94,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
         if (data.result) {
           // Si la connexion réussit, envoyer les informations à Redux et réinitialiser les champs
           dispatch(login({ username: signInUsername, token: data.data.token }));
+          navigation.navigate("TabNavigator", { screen: "Map" });
           setSignInUsername("");
           setSignInPassword("");
           setModalVisible(false);

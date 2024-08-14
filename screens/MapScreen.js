@@ -30,11 +30,13 @@ import ArrivalModal from "../components/ArrivalModal";
 import * as geolib from "geolib";
 import EditProfile from "../components/EditProfile";
 import { useSelector } from "react-redux";
+import EditProfileBlank from "../components/EditProfileBlank";
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
-const FRONTEND_ADDRESS = process.env.FRONTEND_ADDRESS;
-
-const MapScreen = () => {
+const MapScreen = ({ navigation, mapStyle }) => {
+  // Utilisation du hook useSelector pour accéder à l'état de l'utilisateur dans Redux
+  const user = useSelector((state) => state.user.value);
   // Bouton qui mène à la modale pour editer le profile, params etc
   const [modalEdit, setModalEdit] = useState(false);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -410,7 +412,7 @@ const MapScreen = () => {
   useEffect(() => {
     if (origin && destination && duration) {
       token &&
-        fetch("http://172.20.10.2:3000/rides", {
+        fetch(`${FRONTEND_ADDRESS}/rides`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -432,10 +434,10 @@ const MapScreen = () => {
           <MapView
             ref={mapRef}
             style={styles.map}
-            // customMapStyle={mapStyle}
-            // provider={
-            //   Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
-            // }
+            customMapStyle={mapStyle}
+            provider={
+              Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
+            }
             initialRegion={region}
             showsUserLocation
             onLongPress={handleMapPress} // Appelée lorsque l'utilisateur appuie longtemps sur la carte
@@ -475,7 +477,11 @@ const MapScreen = () => {
                     color="#FFFFFF"
                   />
                 </TouchableOpacity>
-                <EditProfile />
+                {user.isConnected ? (
+                  <EditProfile navigation={navigation} />
+                ) : (
+                  <EditProfileBlank navigation={navigation} />
+                )}
               </View>
             </View>
           </Modal>
@@ -610,11 +616,11 @@ const styles = StyleSheet.create({
   },
 
   directionsContainer: {
-    bottom: 0,
+    bottom: -8,
     backgroundColor: "#303F4A",
     width: "100%",
-    height: "10%",
-    borderRadius: 10,
+    height: "12%",
+    // borderRadius: 10,
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "row",
@@ -624,12 +630,16 @@ const styles = StyleSheet.create({
     color: "#C1DBF0",
     fontSize: 16,
     fontWeight: "bold",
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 3,
   },
 
   directionBtn: {
-    shadowColor: "#C1DBF0",
+    shadowColor: "black",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
+    shadowOpacity: 0.6,
     shadowRadius: 3,
   },
   filters: {
