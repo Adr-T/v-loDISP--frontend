@@ -2,15 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import {
     View,
     Text,
-    TextInput,
-    Button,
     StyleSheet,
-    Dimensions,
-    SafeAreaView,
     ScrollView,
-    StatusBar,
     TouchableOpacity,
-    Platform,
     Modal,
 } from "react-native";
 import MapView, {
@@ -34,9 +28,9 @@ import EditProfile from "../components/EditProfile";
 import { useSelector } from "react-redux";
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
-const FRONTEND_ADDRESS = process.env.FRONTEND_ADDRESS;
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
-const MapScreen = () => {
+export default function MapScreen({ route }) {
     // Bouton qui mène à la modale pour editer le profile, params etc
     const [modalEdit, setModalEdit] = useState(false);
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -58,6 +52,19 @@ const MapScreen = () => {
     const [locationLoaded, setLocationLoaded] = useState(false);
     const mapRef = useRef(null); // Référence pour la carte
     const [isModalVisible, setModalVisible] = useState(false); //on utilise pour afficher modal
+    const [isTyping, setIsTyping] = useState(false); // Permet de stocker l'état isTyping au moment de la recherche dans les inputs autocomplete (utilisé pour le zIndex)
+
+    // Mise en place d'un fonction getCoordinates permettant de récupérer la position sur laquelle la carte est centrée ainsi que rappeler le fetchBikes pour l'utiliser avec le bouton refresh bikes
+    const getCoordinates = () => {
+        if (mapRef.current) {
+            //getCamera correspond au lieu visible/affiché surr la carte
+            mapRef.current.getCamera().then((camera) => {
+                const { center } = camera;
+                //appliquer à la fonction fetchBikes les arguments de latitude et longitude récupérés
+                fetchBikes(center.latitude, center.longitude);
+            });
+        }
+    };
 
     // Utilisation de useEffect pour obtenir la localisation actuelle lors du montage du composant
     useEffect(() => {
@@ -91,8 +98,8 @@ const MapScreen = () => {
                     setRegion({
                         latitude: location.coords.latitude,
                         longitude: location.coords.longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421,
+                        latitudeDelta: latitudeDelta,
+                        longitudeDelta: longitudeDelta,
                     });
                     // Définir le point de départ comme la localisation actuelle
                     setOrigin(location.coords);
@@ -236,9 +243,13 @@ const MapScreen = () => {
         setSelectedCoords(coords); //stocker les coordonnées d'un vélo pour pouvoir l'isoler des autres
     };
 
-    const fetchBikes = () => {
+    // Mise en place de la fonction fetchBikes prenant en arguments newLat, newLon (ils correspondent center.latitude et center.longitude dans la fonction getCoordinates)
+    const fetchBikes = (newLat, newLon) => {
+        //Si les arguments sont passés, ils sont pris en compte par le fetch, sinon la position de l'utilisateur est prise en compte
         fetch(
-            `${FRONTEND_ADDRESS}/bikes/${region.latitude}/${region.longitude}`
+            `http://192.168.100.237:3000/bikes/${
+                newLat ? newLat : region.latitude
+            }/${newLon ? newLon : region.longitude}`
         )
             .then((response) => response.json())
             .then((data) => {
@@ -247,10 +258,6 @@ const MapScreen = () => {
                 // setDott(data.dottData);
                 // setTier(data.tierData);
             });
-    };
-
-    const handleRefreshBikes = () => {
-        fetchBikes();
     };
 
     //afficher les vélos disponibles par marque
@@ -419,7 +426,7 @@ const MapScreen = () => {
     useEffect(() => {
         if (origin && destination && duration) {
             token &&
-                fetch("http://172.20.10.2:3000/rides", {
+                fetch("http://192.168.100.237:3000/rides", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -445,7 +452,7 @@ const MapScreen = () => {
                         // provider={
                         //   Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
                         // }
-                        initialRegion={region}
+                        region={region}
                         showsUserLocation
                         onLongPress={handleMapPress} // Appelée lorsque l'utilisateur appuie longtemps sur la carte
                     >
@@ -512,6 +519,8 @@ const MapScreen = () => {
                             onPress={(data, details = null) =>
                                 handlePlaceSelect("origin", details)
                             }
+                            onFocus={() => setIsTyping(true)} // Activer l'état isTyping lors de la saisie
+                            onBlur={() => setIsTyping(false)} // Désactiver l'état isTyping lorsque la saisie est terminée
                             query={{
                                 key: GOOGLE_MAPS_APIKEY,
                                 language: "en",
@@ -534,6 +543,8 @@ const MapScreen = () => {
                             onPress={(data, details = null) =>
                                 handlePlaceSelect("destination", details)
                             }
+                            onFocus={() => setIsTyping(true)} // Activer l'état isTyping lors de la saisie
+                            onBlur={() => setIsTyping(false)} // Désactiver l'état isTyping lorsque la saisie est terminée
                             query={{
                                 key: GOOGLE_MAPS_APIKEY,
                                 language: "en",
@@ -549,12 +560,12 @@ const MapScreen = () => {
                             }}
                             /> */}
                     </View>
-                    <View style={styles.filters}>
+                    <View
+                        style={[styles.filters, { zIndex: isTyping ? -1 : 1 }]}
+                    >
                         <TouchableOpacity
                             style={styles.refreshBikes}
-                            onPress={() => {
-                                handleRefreshBikes;
-                            }}
+                            onPress={() => getCoordinates()}
                         >
                             <FontAwesome name="refresh" size={20} />
                         </TouchableOpacity>
@@ -617,7 +628,7 @@ const MapScreen = () => {
             />
         </View>
     );
-};
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -629,7 +640,7 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
     },
     inputContainer: {
-        zindex: 2,
+        zindex: 10,
         position: "absolute",
         top: 50,
         width: "90%",
@@ -667,11 +678,11 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
     },
     filters: {
-        flex: 1,
+        // flex: 1,
+        // zIndex dynamique défini dans le composant en foncion de l'état isTyping
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        zIndex: 1,
         position: "absolute",
         top: 180,
         width: "90%",
@@ -733,4 +744,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default MapScreen;
+// export default MapScreen;
