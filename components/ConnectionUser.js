@@ -14,7 +14,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import GoogleSignIn from "./GoogleSignin";
 import { login } from "../reducers/user";
-const ConnectionUser = ({ navigation, modalVisible, setModalVisible }) => {
+
+const ConnectionUser = ({ navigation, setModalVisible }) => {
   // Initialisation du hook dispatch pour envoyer des actions à Redux
   const dispatch = useDispatch();
   // Utilisation du hook useSelector pour accéder à l'état de l'utilisateur dans Redux
@@ -80,7 +81,7 @@ const ConnectionUser = ({ navigation, modalVisible, setModalVisible }) => {
 
   // Fonction pour gérer la connexion de l'utilisateur
   const handleConnection = () => {
-    fetch("http://172.20.10.2:3000/users/signin", {
+    fetch("http://192.168.100.78:3000/users/signin", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -187,7 +188,7 @@ const ConnectionUser = ({ navigation, modalVisible, setModalVisible }) => {
       return;
     }
 
-    fetch("http://172.20.10.2:3000/users/signup", {
+    fetch("http://192.168.100.78:3000/users/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

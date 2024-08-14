@@ -29,6 +29,7 @@ import BikeModal from "../components/BikeModal"; //importer le composant BikeMod
 import ArrivalModal from "../components/ArrivalModal";
 import * as geolib from "geolib";
 import { useSelector } from "react-redux";
+import NoteModalScreen from "../components/NoteModalScreen";
 
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
@@ -54,6 +55,7 @@ const MapScreen = () => {
   const [locationLoaded, setLocationLoaded] = useState(false);
   const mapRef = useRef(null); // Référence pour la carte
   const [isModalVisible, setModalVisible] = useState(false); //on utilise pour afficher modal
+  const [NoteModalVisible, setNoteModalVisible] = useState(false);
 
   // Utilisation de useEffect pour obtenir la localisation actuelle lors du montage du composant
   useEffect(() => {
@@ -146,31 +148,48 @@ const MapScreen = () => {
   //                                                                                                                                                        //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  // geolib methode pour calculer la distance entre 2 adress
-  // const getModal = async () => {
-  //   const dist = await geolib.getDistance(
-  //     // la location ou on est
-  //     {
-  //       latitude: region.latitude ? region.latitude : null,
-  //       longitude: region.longitude ? region.longitude : null,
-  //     },
-  //     // location ou on va
-  //     {
-  //       latitude: destination.latitude ? destination.latitude : null,
-  //       longitude: destination.longitude ? destination.longitude : null,
-  //     }
-  //   );
-  //   const disTanceInMeteres = dist / 10000;
-  //   if (disTanceInMeteres < 0.2) {
-  //     console.log("destination reached  ");
-
-  //     setModalVisible(true);
-  //   }
-  // };
-  const toggleModal = () => {
-    setModalVisible(false);
-  };
-  // getModal();
+  //  useeffect pour calculer la distance entre la localisation actuelle  et destination pour afficher modal
+  // console.log(region.latitude);
+  useEffect(() => {
+    async function fetchData() {
+      const latitude = await region.latitude;
+      const longitude = await region.longitude;
+      if (
+        latitude &&
+        longitude &&
+        destination.latitude &&
+        destination.longitude
+      ) {
+        const dist = geolib.getDistance(
+          // la location ou on est
+          {
+            latitude: latitude,
+            longitude: longitude,
+          },
+          // location ou on va
+          {
+            latitude: destination.latitude
+              ? destination.latitude
+              : e.nativeEvent.coordinate,
+            longitude: destination.longitude
+              ? destination.longitude
+              : e.nativeEvent.coordinate,
+          }
+        );
+        if (dist < 40) {
+          setModalVisible(true);
+          setTimeout(() => {
+            setModalVisible(false);
+          }, 3000);
+          setTimeout(() => {
+            setNoteModalVisible(true);
+          }, 4000);
+        }
+        return;
+      }
+    }
+    fetchData();
+  }, [duration]);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                                                                        //
@@ -210,7 +229,7 @@ const MapScreen = () => {
 
   const fetchBikes = () => {
     fetch(
-      `http://172.20.10.2:3000/bikes/${region.latitude}/${region.longitude}`
+      `http://192.168.100.78:3000/bikes/${region.latitude}/${region.longitude}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -361,7 +380,7 @@ const MapScreen = () => {
   useEffect(() => {
     if (origin && destination && duration) {
       token &&
-        fetch("http://172.20.10.2:3000/rides", {
+        fetch("http://192.168.100.78:3000/rides", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -471,7 +490,18 @@ const MapScreen = () => {
             />
           )}
 
-          {isModalVisible && <ArrivalModal toggleModal={toggleModal} />}
+          {isModalVisible && (
+            <ArrivalModal
+              setModalVisible={setModalVisible}
+              isModalVisible={isModalVisible}
+            />
+          )}
+          {NoteModalVisible && (
+            <NoteModalScreen
+              NoteModalVisible={NoteModalVisible}
+              setNoteModalVisible={setNoteModalVisible}
+            />
+          )}
           {steps.length > 0 && (
             <View style={styles.directionsContainer}>
               <View style={styles.kmTps}>

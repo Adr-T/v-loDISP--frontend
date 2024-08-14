@@ -4,58 +4,79 @@ import Modal from "react-native-modal";
 // import AntIcon from "react-native-vector-icons/AntDesign";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
-
-export default function ArrivalModal() {
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
-  // affichage de modal
-  const [isModalVisible, setModalVisible] = useState(true);
+import { useSelector, useDispatch } from "react-redux";
+import { login } from "../reducers/user";
+export default function NoteModalScreen({
+  NoteModalVisible,
+  setNoteModalVisible,
+}) {
   // variable pour utiliser de recuperer nombre detoile
-  const [rating, setRating] = useState(0);
+  // const [rating, setRating] = useState(0);
   // variable pour noté velo
-  const [noteVelo, setNoteVelo] = useState(null);
+  // const [noteVelo, setNoteVelo] = useState(null);
   //variable  pour noté le trajet
   const [noteRide, setNoteRide] = useState("");
   // affichage des star
-  const [afficheStar, setAfficheStar] = useState(null);
+  // const [afficheStar, setAfficheStar] = useState(null);
   // pour calculer l'index ou on a clické
+
   const handleStarPress = (starIndex) => {
     setRating(starIndex + 1);
   };
 
-  const renderStars = () => {
-    const stars = [];
-    for (let i = 0; i < 5; i++) {
-      const isFilled = i < rating;
-      const starColor = isFilled ? "#C0DCF0" : "DCDCDC";
-      stars.push(
-        <TouchableOpacity key={i} onPress={() => handleStarPress(i)}>
-          <FontAwesome name="star" size={"44%"} color={starColor} />
-        </TouchableOpacity>
-      );
-    }
-    setNoteVelo(rating);
-
-    return setAfficheStar(stars);
-  };
-  if (isModalVisible) {
-    renderStars();
-  }
+  // const renderStars = () => {
+  //   const stars = [];
+  //   for (let i = 0; i < 5; i++) {
+  //     const isFilled = i < rating;
+  //     const starColor = isFilled ? "#C0DCF0" : "DCDCDC";
+  //     stars.push(
+  //       <TouchableOpacity key={i} onPress={() => handleStarPress(i)}>
+  //         <FontAwesome name="star" size={"44%"} color={starColor} />
+  //       </TouchableOpacity>
+  //     );
+  //   }
+  //   setNoteVelo(rating);
+  //   setAfficheStar(stars);
+  //   return;
+  // };
+  // if (NoteModalVisible) {
+  //   renderStars();
+  // }
+  // useEffect(() => {
+  //   renderStars();
+  // }, [rating]);
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state.user.value.token);
   useEffect(() => {
-    fetch("http://192.168.100.78:3000/stats", {
+    fetch(`http://192.168.100.78:3000/stats`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        noteVelo: noteVelo,
+        // noteVelo: noteVelo,
         noteRide: noteRide,
+        token: token,
       }),
-    }).then((response) => response.json());
-  }, [noteVelo]);
+    })
+      .then((response) => response.json())
+      .then((d) => {
+        dispatch(
+          login({
+            statData: d.stat.stats,
+          })
+        );
+      });
+  }, [noteRide]);
+
+  const handleClick = (emoji) => {
+    setTimeout(() => {
+      setNoteModalVisible(false);
+    }, 2000);
+    setNoteRide(emoji);
+  };
 
   return (
     <View style={styles.containerModal}>
-      <Modal isVisible={isModalVisible}>
+      <Modal isVisible={NoteModalVisible}>
         <View style={styles.container}>
           <View style={styles.header}>
             <FontAwesome
@@ -63,40 +84,40 @@ export default function ArrivalModal() {
               name="close"
               size={25}
               onPress={() => {
-                setModalVisible(false);
+                setNoteModalVisible(false);
               }}
             />
             <Text style={styles.text}>back to VeloDISPØ</Text>
           </View>
-          <View style={styles.main}>
+          {/* <View style={styles.main}>
             <Text>{afficheStar}</Text>
 
             <Text style={styles.textRate}>Rate your Bake!</Text>
-          </View>
+          </View> */}
           <View style={styles.emojiContainer}>
             <View style={styles.emoji}>
               <Entypo
-                style={styles.btn}
+                style={noteRide === "bad" ? styles.bad : styles.btn}
                 name="emoji-sad"
                 size={25}
                 onPress={() => {
-                  setNoteRide("bad");
+                  handleClick("bad");
                 }}
               />
               <Entypo
-                style={styles.btn}
+                style={noteRide === "moyen" ? styles.bad : styles.btn}
                 name="emoji-neutral"
                 size={25}
                 onPress={() => {
-                  setNoteRide("moyen");
+                  handleClick("moyen");
                 }}
               />
               <Entypo
-                style={styles.btn}
+                style={noteRide === "top" ? styles.bad : styles.btn}
                 name="emoji-happy"
                 size={25}
                 onPress={() => {
-                  setNoteRide("top");
+                  handleClick("top");
                 }}
               />
             </View>
@@ -144,6 +165,10 @@ const styles = StyleSheet.create({
     fontSize: "50%",
     color: "#C0DCF0",
   },
+  bad: {
+    transform: [{ scale: 2 }],
+    color: "#E3CF12",
+  },
   emojiContainer: {
     alignItems: "center",
   },
@@ -157,58 +182,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-// import { StyleSheet, Text, TouchableOpacity, View, Modal } from "react-native";
-
-// import React, { useEffect, useState, useRef } from "react";
-// import FontAwesome from "react-native-vector-icons/FontAwesome";
-
-// export default function NoteModalScreen() {
-//   const [modalVisible, setModalVisible] = useState(false);
-//   const [bikeNote, setBikeNote] = useState(0);
-
-//   let style = null;
-
-//   const noteStars = [];
-//   for (let i = 0; i < 5; i++) {
-//     if (i < bikeNote) {
-//       style = { color: "#2196f3" };
-//     }
-//     noteStars.push(
-//       <FontAwesome
-//         key={i}
-//         name="star-o"
-//         onPress={() => setBikeNote(i + 1)}
-//         style={style}
-//       />
-//     );
-//   }
-
-//   return (
-//     <View style={styles.container}>
-//       <Modal
-//         animationType="fade"
-//         transparent={true}
-//         visible={modalVisible}
-//         onRequestClose={() => {
-//           setModalVisible(false);
-//         }}
-//       >
-//         <FontAwesome
-//           style={styles.btn}
-//           name="close"
-//           size={25}
-//           onPress={() => {
-//             setModalVisible(false);
-//           }}
-//         />
-//         <View style={styles.starNote}>
-//           <Text>{noteStars}</Text>
-//           <Text>Rate your bike !</Text>
-//         </View>
-//       </Modal>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({});

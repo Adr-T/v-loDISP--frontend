@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 // librairie qui convertir la date
-import { format, compareAsc } from "date-fns";
+import { format } from "date-fns";
 
 import { useEffect, useState } from "react";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
@@ -9,18 +9,19 @@ import { useSelector } from "react-redux";
 
 export default function HistoricScreen() {
   // variable declarer avec useSelector pour recuperer token de lutilisateur depuis recuer
-  const token = useSelector((state) => state.user.value.token);
+  const reduce = useSelector((state) => state.user.value);
+  const [statData, setStatData] = useState([]);
 
   // variable pour recuperer les donee
   const [data, setData] = useState(null);
   useEffect(() => {
     // fetch pour recuperer les donné
-    token &&
-      fetch("http://172.20.10.2:3000/rides/historique", {
+    reduce.token &&
+      fetch("http://192.168.100.78:3000/rides/historique", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token: token,
+          token: reduce.token,
         }),
       })
         .then((response) => response.json())
@@ -31,7 +32,22 @@ export default function HistoricScreen() {
           }
         });
   }, []);
-
+  useEffect(() => {
+    reduce.token &&
+      fetch(`http://192.168.100.78:3000/stats/${reduce.token}`)
+        .then((response) => response.json())
+        .then((data) => {
+          // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
+          setStatData(data.stat.stats);
+        });
+  }, [reduce.token]);
+  let array = [];
+  if (statData) {
+    statData.map((e) => {
+      array.push(e.noteRide);
+    });
+    console.log(...array, ...data);
+  }
   // on utilise une variable pour afficher a la fin les element retourne apres d'avoir utiliser le map sur la data q'on  a recu
   const historique =
     data &&
