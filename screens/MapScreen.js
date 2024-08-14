@@ -52,7 +52,6 @@ export default function MapScreen({ route }) {
     const [locationLoaded, setLocationLoaded] = useState(false);
     const mapRef = useRef(null); // Référence pour la carte
     const [isModalVisible, setModalVisible] = useState(false); //on utilise pour afficher modal
-    const [isTyping, setIsTyping] = useState(false); // Permet de stocker l'état isTyping au moment de la recherche dans les inputs autocomplete (utilisé pour le zIndex)
 
     // Mise en place d'un fonction getCoordinates permettant de récupérer la position sur laquelle la carte est centrée ainsi que rappeler le fetchBikes pour l'utiliser avec le bouton refresh bikes
     const getCoordinates = () => {
@@ -519,8 +518,6 @@ export default function MapScreen({ route }) {
                             onPress={(data, details = null) =>
                                 handlePlaceSelect("origin", details)
                             }
-                            onFocus={() => setIsTyping(true)} // Activer l'état isTyping lors de la saisie
-                            onBlur={() => setIsTyping(false)} // Désactiver l'état isTyping lorsque la saisie est terminée
                             query={{
                                 key: GOOGLE_MAPS_APIKEY,
                                 language: "en",
@@ -543,8 +540,6 @@ export default function MapScreen({ route }) {
                             onPress={(data, details = null) =>
                                 handlePlaceSelect("destination", details)
                             }
-                            onFocus={() => setIsTyping(true)} // Activer l'état isTyping lors de la saisie
-                            onBlur={() => setIsTyping(false)} // Désactiver l'état isTyping lorsque la saisie est terminée
                             query={{
                                 key: GOOGLE_MAPS_APIKEY,
                                 language: "en",
@@ -560,9 +555,7 @@ export default function MapScreen({ route }) {
                             }}
                             /> */}
                     </View>
-                    <View
-                        style={[styles.filters, { zIndex: isTyping ? -1 : 1 }]}
-                    >
+                    <View style={styles.filters}>
                         <TouchableOpacity
                             style={styles.refreshBikes}
                             onPress={() => getCoordinates()}
@@ -640,7 +633,8 @@ const styles = StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
     },
     inputContainer: {
-        zindex: 10,
+        zIndex: 3,
+        elevation: 3,
         position: "absolute",
         top: 50,
         width: "90%",
@@ -678,8 +672,8 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
     },
     filters: {
-        // flex: 1,
-        // zIndex dynamique défini dans le composant en foncion de l'état isTyping
+        zIndex: 1,
+        elevation: 1,
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
@@ -708,7 +702,7 @@ const styles = StyleSheet.create({
         width: "100%",
     },
     bikeModal: {
-        zIndex: 99,
+        zIndex: 2,
         position: "absolute",
         bottom: 180,
     },
