@@ -6,6 +6,7 @@ import {
     ScrollView,
     TouchableOpacity,
     Modal,
+    Platform,
 } from "react-native";
 import MapView, {
     Marker,
@@ -19,13 +20,19 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 // import { mapStyle } from "../styles/mapstyle";
 import { Linking } from "react-native"; // pour permettre de rediriger vers GoogleMaps
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import * as geolib from "geolib";
+//imports des composants
 import Bike from "../components/Bike"; //importer le composant Bike afin de l'utiliser dans Mapscreen
 import BikeFilter from "../components/BikeFilter"; //importer le composant BikeFilter afin de l'utiliser dans Mapscreen
 import BikeModal from "../components/BikeModal"; //importer le composant BikeModal afin de l'utiliser dans Mapscreen
 import ArrivalModal from "../components/ArrivalModal";
-import * as geolib from "geolib";
 import EditProfile from "../components/EditProfile";
+import NoteModalScreen from "../components/NoteModalScreen"; //importer le composant NoteModalScreen pour l'utiliser dans Mapscreen
+
+//imports concernant redux
 import { useSelector } from "react-redux";
+
+//déclaration des variables d'environnement
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
 const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
@@ -52,6 +59,8 @@ export default function MapScreen({ route }) {
     const [locationLoaded, setLocationLoaded] = useState(false);
     const mapRef = useRef(null); // Référence pour la carte
     const [isModalVisible, setModalVisible] = useState(false); //on utilise pour afficher modal
+    const [NoteModalVisible, setNoteModalVisible] = useState(false); //mise en place d'un état pour stocker temporairement la note donnée au trajet
+    const [showHiddenBtn, setShowHiddenButton] = useState(false); //mise en place d'un état pour afficher le bouton caché
 
     // Mise en place d'un fonction getCoordinates permettant de récupérer la position sur laquelle la carte est centrée ainsi que rappeler le fetchBikes pour l'utiliser avec le bouton refresh bikes
     const getCoordinates = () => {
@@ -134,7 +143,22 @@ export default function MapScreen({ route }) {
         setSteps([]);
         setDistance("");
         setDuration("");
+        setShowHiddenButton(false); // Cache le bouton après réinitialisation
     };
+
+    // Gérer l'apparition du bouton caché lorsqu'un trajet est recherché en vérifiant les conditions du trajet
+    const handleHiddenBtn = () => {
+        if (routeCoordinates && steps.length > 0 && distance && duration) {
+            setShowHiddenButton(true);
+        } else {
+            setShowHiddenButton(false); // Cache le bouton si les conditions ne sont pas remplies
+        }
+    };
+
+    // Utiliser useEffect pour surveiller les changements des états concernés
+    useEffect(() => {
+        handleHiddenBtn();
+    }, [routeCoordinates, steps, distance, duration]); // Déclenche handleHiddenBtn lorsque ces états changent
 
     // Gérer la sélection des lieux avec autocomplétion
     const handlePlaceSelect = (type, details) => {
@@ -193,33 +217,48 @@ export default function MapScreen({ route }) {
     //                                                                                                                                                        //
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // geolib methode pour calculer la distance entre 2 adress
-    const getModal = async () => {
-        const dist = await geolib.getDistance(
-            // la location ou on est
-            {
-                latitude: region?.latitude ? region?.latitude : null,
-                longitude: region?.longitude ? region?.longitude : null,
-            },
-            // location ou on va
-            {
-                latitude: destination?.latitude ? destination?.latitude : null,
-                longitude: destination?.longitude
-                    ? destination?.longitude
-                    : null,
+    //  useEffect pour calculer la distance entre la localisation actuelle et destination pour afficher la modal de notation
+    // console.log(region.latitude);
+    useEffect(() => {
+        async function fetchData() {
+            const latitude = await region.latitude;
+            const longitude = await region.longitude;
+            if (
+                latitude &&
+                longitude &&
+                destination.latitude &&
+                destination.longitude
+            ) {
+                const dist = geolib.getDistance(
+                    // la location ou on est
+                    {
+                        latitude: latitude,
+                        longitude: longitude,
+                    },
+                    // location ou on va
+                    {
+                        latitude: destination.latitude
+                            ? destination.latitude
+                            : e.nativeEvent.coordinate,
+                        longitude: destination.longitude
+                            ? destination.longitude
+                            : e.nativeEvent.coordinate,
+                    }
+                );
+                if (dist < 40) {
+                    setModalVisible(true);
+                    setTimeout(() => {
+                        setModalVisible(false);
+                    }, 3000);
+                    setTimeout(() => {
+                        setNoteModalVisible(true);
+                    }, 4000);
+                }
+                return;
             }
-        );
-        const disTanceInMeteres = dist / 10000;
-        if (disTanceInMeteres < 0.2) {
-            //   console.log("destination reached  ");
-
-            setModalVisible(true);
         }
-    };
-    const toggleModal = () => {
-        setModalVisible(false);
-    };
-    getModal();
+        fetchData();
+    }, [duration]);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                                                        //
@@ -271,16 +310,16 @@ export default function MapScreen({ route }) {
     const fetchBikes = (newLat, newLon) => {
         //Si les arguments sont passés, ils sont pris en compte par le fetch, sinon la position de l'utilisateur est prise en compte
         fetch(
-            `http://192.168.100.237:3000/bikes/${
-                newLat ? newLat : region.latitude
-            }/${newLon ? newLon : region.longitude}`
+            `${FRONTEND_ADDRESS}/bikes/${newLat ? newLat : region.latitude}/${
+                newLon ? newLon : region.longitude
+            }`
         )
             .then((response) => response.json())
             .then((data) => {
                 setVelib(data.velibData);
                 setLime(data.limeData);
-                // setDott(data.dottData);
-                // setTier(data.tierData);
+                setDott(data.dottData);
+                setTier(data.tierData);
             });
     };
 
@@ -473,10 +512,11 @@ export default function MapScreen({ route }) {
                         ref={mapRef}
                         style={styles.map}
                         // customMapStyle={mapStyle}
-                        // provider={
-                        //   Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
-                        // }
-                        provider={PROVIDER_GOOGLE}
+                        provider={
+                            Platform.OS === "android"
+                                ? PROVIDER_GOOGLE
+                                : PROVIDER_DEFAULT
+                        }
                         region={region}
                         showsUserLocation
                         showsMyLocationButton={false} // Désactiver le bouton de localisation par défaut
@@ -635,7 +675,16 @@ export default function MapScreen({ route }) {
                     )}
 
                     {isModalVisible && (
-                        <ArrivalModal toggleModal={toggleModal} />
+                        <ArrivalModal
+                            setModalVisible={setModalVisible}
+                            isModalVisible={isModalVisible}
+                        />
+                    )}
+                    {NoteModalVisible && (
+                        <NoteModalScreen
+                            NoteModalVisible={NoteModalVisible}
+                            setNoteModalVisible={setNoteModalVisible}
+                        />
                     )}
                     {steps.length > 0 && (
                         <View style={styles.directionsContainer}>
@@ -667,6 +716,13 @@ export default function MapScreen({ route }) {
                 closeModal={() => closeModal()}
                 style={styles.bikeModal}
             />
+            {showHiddenBtn && (
+                <TouchableOpacity
+                    style={styles.hiddenBtn}
+                    size={30}
+                    onPress={() => resetRoute()}
+                ></TouchableOpacity>
+            )}
         </View>
     );
 }
@@ -802,6 +858,21 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: 20,
         right: 20,
+    },
+    hiddenBtn: {
+        width: 50,
+        height: 50,
+        borderRadius: 50,
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        borderColor: "red",
+        position: "absolute",
+        bottom: -10,
+        left: 160,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 10,
+        elevation: 10,
     },
 });
 
