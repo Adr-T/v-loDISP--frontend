@@ -160,6 +160,31 @@ export default function MapScreen({ route }) {
         }
     };
 
+    // Fonction pour recentrer sur la position actuelle
+    const centerOnUserLocation = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+            console.error("Permission to access location was denied");
+            return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        mapRef.current.animateToRegion(
+            {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+            },
+            1000
+        );
+    };
+
+    // Fonction pour réorienter la carte vers le nord
+    const orientToNorth = () => {
+        mapRef.current.animateCamera({ heading: 0 }, { duration: 500 });
+    };
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                                                                                                                                        //
     //                                                                                                                                                        //
@@ -451,8 +476,12 @@ export default function MapScreen({ route }) {
                         // provider={
                         //   Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
                         // }
+                        provider={PROVIDER_GOOGLE}
                         region={region}
                         showsUserLocation
+                        showsMyLocationButton={false} // Désactiver le bouton de localisation par défaut
+                        rotateEnabled={true} // Désactiver l'orientation par défaut
+                        showsCompass={false} // Désactiver l'icône de la boussole
                         onLongPress={handleMapPress} // Appelée lorsque l'utilisateur appuie longtemps sur la carte
                     >
                         {allBikes}
@@ -488,6 +517,25 @@ export default function MapScreen({ route }) {
                             </>
                         )}
                     </MapView>
+                    {/* Bouton pour recentrer sur la position */}
+                    <TouchableOpacity
+                        style={styles.locationButton}
+                        onPress={centerOnUserLocation}
+                    >
+                        <FontAwesome
+                            name="location-arrow"
+                            size={24}
+                            color="#fff"
+                        />
+                    </TouchableOpacity>
+
+                    {/* Bouton pour réorienter vers le nord */}
+                    <TouchableOpacity
+                        style={styles.northButton}
+                        onPress={orientToNorth}
+                    >
+                        <FontAwesome name="compass" size={24} color="#fff" />
+                    </TouchableOpacity>
                     <Modal
                         animationType="fade"
                         transparent={true}
@@ -646,6 +694,25 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 3,
         elevation: 1,
+    },
+
+    locationButton: {
+        position: "absolute",
+        top: 250,
+        left: 20,
+        backgroundColor: "#37678A",
+        borderRadius: 100,
+        padding: 5,
+        elevation: 5,
+    },
+    northButton: {
+        position: "absolute",
+        top: 300,
+        left: 20,
+        backgroundColor: "#37678A",
+        borderRadius: 100,
+        padding: 5,
+        elevation: 5,
     },
 
     directionsContainer: {
