@@ -4,8 +4,8 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useEffect, useState } from "react";
 
 export default function AlertScreen() {
-    // state pour recupere data de l'alert
-
+  // state pour recupere data de l'alert
+  const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
   const [dataAlert, setDataAlert] = useState(null);
   useEffect(() => {
     fetch(`${FRONTEND_ADDRESS}/alerts`)
@@ -40,43 +40,44 @@ export default function AlertScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#303F4A",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    alertContainer: {
-        alignContent: "center",
-        flexDirection: "row",
-        justifyContent: "center",
-        borderWidth: 1,
-        borderColor: "white",
-        marginBottom: "1%",
-        padding: 15,
-        width: "90%",
-    },
-    iconAlert: {
-        alignItems: "center",
-        justifyContent: "center",
-        width: "30%",
-    },
-    text: {
-        color: "white",
-        fontSize: "16%",
-        marginBottom: "2%",
-    },
-    textAlert: {
-        color: "white",
-        fontSize: "16%",
-        marginBottom: "2%",
-        letterSpacing: 3,
-        fontWeight: "bold",
-        color: "#C0DCF0",
-    },
-    textAlertContainer: {
-        alignItems: "center",
-        justifyContent: "center",
-        width: "70%",
-    },
+  container: {
+    flex: 1,
+    backgroundColor: "#303F4A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  alertContainer: {
+    alignContent: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "white",
+    marginBottom: "1%",
+    padding: 15,
+    width: "99%",
+    borderRadius: 10,
+  },
+  iconAlert: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "30%",
+  },
+  text: {
+    color: "white",
+    fontSize: "16%",
+    marginBottom: "2%",
+  },
+  textAlert: {
+    color: "white",
+    fontSize: "16%",
+    marginBottom: "2%",
+    letterSpacing: 3,
+    fontWeight: "bold",
+    color: "#C0DCF0",
+  },
+  textAlertContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    width: "70%",
+  },
 });

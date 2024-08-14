@@ -83,15 +83,15 @@ export default function BikeModal({ modalVisible, closeModal, bikeType }) {
 
 const styles = StyleSheet.create({
   blocko: {
-    height: "15%",
+    height: "12%",
     width: "100%",
     backgroundColor: "#303F4A",
     justifyContent: "space-evenly",
     alignItems: "center",
     top: "75%",
-    borderRadius: 20,
+    // borderRadius: 20,
     flexDirection: "row",
-    marginVertical: "85%",
+    marginVertical: "95%",
   },
 
   txtBtn: {
@@ -101,7 +101,11 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
 
-  closeBtn: {},
+  closeBtn: {
+    position: "absolute",
+    right: 18,
+    bottom: 18,
+  },
 
   openAppBtn: {
     color: "#FAFAFA",
@@ -119,5 +123,6 @@ const styles = StyleSheet.create({
     width: "50%",
     alignItems: "center",
     justifyContent: "center",
+    marginHorizontal: 100,
   },
 });

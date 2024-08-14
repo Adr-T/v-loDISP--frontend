@@ -12,6 +12,7 @@ import {
 import { logout } from "../reducers/user";
 import { useDispatch, useSelector } from "react-redux";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
 export default function EditProfile({ navigation }) {
   // Initialisation du hook dispatch pour envoyer des actions à Redux
@@ -70,7 +71,7 @@ export default function EditProfile({ navigation }) {
 
   // Contenu du modal pour changement mdp
   let passwordChange;
-  if (!user.isConnected) {
+  if (user.isConnected) {
     passwordChange = (
       <View>
         <TouchableOpacity style={styles.btnClose}>
@@ -151,7 +152,7 @@ export default function EditProfile({ navigation }) {
 
   // Contenu du modal pour changement username
   let usernameUpdate;
-  if (!user.isConnected) {
+  if (user.isConnected) {
     usernameUpdate = (
       <View>
         <TouchableOpacity
@@ -187,16 +188,16 @@ export default function EditProfile({ navigation }) {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigation.navigate("TabNavigator", { screen: "Home" });
+    navigation.navigate("Home");
   };
 
   const handleDelete = () => {
-    fetch(`${FRONTEND_ADDRESS}`, {
+    fetch(`${FRONTEND_ADDRESS}/users/delete`, {
       method: "Delete",
     })
       .then((response) => response.json())
       .then(() => {
-        navigation.navigate("TabNavigator", { screen: "home" });
+        navigation.navigate("Home");
       });
   };
 
@@ -205,7 +206,16 @@ export default function EditProfile({ navigation }) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.wrapper}
     >
-      <Text style={styles.settings}>SETTINGS</Text>
+      <View
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: "#FAFAFA",
+          position: "abolute",
+          top: 115,
+        }}
+      >
+        <Text style={styles.settings}>SETTINGS</Text>
+      </View>
       <View style={styles.mainContainer}>
         <TouchableOpacity
           onPress={() => setModalPwd(true)}
@@ -242,8 +252,11 @@ export default function EditProfile({ navigation }) {
         <TouchableOpacity onPress={() => handleLogout()} style={styles.button2}>
           <Text style={styles.buttonText2}>Logout</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => handleDelete()} style={styles.button2}>
-          <Text style={styles.buttonText2}>Delete account</Text>
+        <TouchableOpacity
+          onPress={() => handleDelete()}
+          style={styles.buttonDel}
+        >
+          <Text style={styles.buttonTxtDel}>Delete account</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -329,12 +342,8 @@ const styles = StyleSheet.create({
   },
 
   settings: {
-    position: "abolue",
-    top: 115,
     color: "#FAFAFA",
     fontSize: 16,
-    borderBottomColor: "#FAFAFA",
-    borderBottomWidth: 1,
   },
 
   button2: {
@@ -359,6 +368,30 @@ const styles = StyleSheet.create({
     color: "#FAFAFA",
     fontFamily: "monospace",
     fontSize: 14,
+  },
+
+  buttonDel: {
+    color: "red",
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "red",
+    backgroundColor: "#303F4A",
+    shadowColor: "red",
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    width: 140,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  buttonTxtDel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "red",
   },
 
   title: {

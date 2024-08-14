@@ -4,6 +4,7 @@ import Modal from "react-native-modal";
 // import AntIcon from "react-native-vector-icons/AntDesign";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
 export default function ArrivalModal() {
   // affichage de modal

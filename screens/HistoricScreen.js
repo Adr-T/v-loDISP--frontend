@@ -4,6 +4,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useSelector } from "react-redux";
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 // import NoteModalScreen from "../components/NoteModalScreen";
 export default function HistoricScreen() {
   // variable declarer avec useSelector pour recuperer token de lutilisateur depuis recuer
@@ -16,7 +17,7 @@ export default function HistoricScreen() {
   useEffect(() => {
     // fetch pour recuperer les donné
     token &&
-      fetch("${BACKEND_ADDRESS}/rides/historique", {
+      fetch(`${FRONTEND_ADDRESS}/rides/historique`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -55,7 +56,7 @@ export default function HistoricScreen() {
   let user = (
     <View style={styles.UserNotFound}>
       <Text style={styles.text}>
-        Please create an account to view historical journey 🫣
+        Create an account to view historical journey 🫣
       </Text>
     </View>
   );
@@ -102,5 +103,6 @@ const styles = StyleSheet.create({
     marginBottom: "1%",
     padding: 15,
     width: "100%",
+    borderRadius: 15,
   },
 });
