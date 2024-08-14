@@ -1,4 +1,4 @@
-import React from "react";
+import react from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 export default function BikeFilter(props) {
@@ -19,18 +19,18 @@ export default function BikeFilter(props) {
 }
 
 const styles = StyleSheet.create({
-  btn: {
-    borderWidth: 1,
-    borderColor: "red",
-    width: 150,
-  },
+  // btn: {
+  //     borderWidth: 1,
+  //     borderColor: "red",
+  //     width: 150,
+  // },
   velib: {
     backgroundColor: "#2280F5",
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    width: "22%",
-    height: 25,
+    width: 80,
+    height: 30,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    marginRight: 5,
   },
 
   dott: {
@@ -46,8 +47,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    width: "22%",
-    height: 25,
+    width: 80,
+    height: 30,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -56,6 +57,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    marginRight: 5,
   },
 
   tier: {
@@ -63,8 +65,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    width: "22%",
-    height: 25,
+    width: 80,
+    height: 30,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -73,6 +75,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    marginRight: 5,
   },
 
   lime: {
@@ -80,8 +83,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
-    width: "22%",
-    height: 25,
+    width: 80,
+    height: 30,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -90,5 +93,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    marginRight: 5,
+  },
+  all: {
+    width: 80,
+    height: 30,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#323232",
+    backgroundColor: "#303F4A",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+    marginRight: 5,
   },
 });

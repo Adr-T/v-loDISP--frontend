@@ -1,6 +1,7 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { StyleSheet } from "react-native";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import HomeScreen from "./screens/HomeScreen";
 import MapScreen from "./screens/MapScreen";
@@ -36,8 +37,9 @@ const TabNavigator = () => {
           return <FontAwesome name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: "#C1DBF0",
-        tabBarInactiveTintColor: "#335561",
+        tabBarInactiveTintColor: "#FAFAFA",
         headerShown: false,
+        tabBarStyle: { ...styles.tabContainer },
       })}
     >
       <Tab.Screen name="Historic" component={HistoricScreen} />
@@ -59,3 +61,8 @@ export default function App() {
     </Provider>
   );
 }
+const styles = StyleSheet.create({
+  tabContainer: {
+    backgroundColor: "#303F4A",
+  },
+});

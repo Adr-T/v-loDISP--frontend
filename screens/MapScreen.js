@@ -28,12 +28,15 @@ import BikeFilter from "../components/BikeFilter"; //importer le composant BikeF
 import BikeModal from "../components/BikeModal"; //importer le composant BikeModal afin de l'utiliser dans Mapscreen
 import ArrivalModal from "../components/ArrivalModal";
 import * as geolib from "geolib";
-
+import EditProfile from "../components/EditProfile";
+import { useSelector } from "react-redux";
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
 
-const BACKEND_ADDRESS = process.env.BACKEND_ADDRESS;
+const FRONTEND_ADDRESS = process.env.FRONTEND_ADDRESS;
 
 const MapScreen = () => {
+  // Bouton qui mène à la modale pour editer le profile, params etc
+  const [modalEdit, setModalEdit] = useState(false);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                                                                        //
   //                                                                                                                                                        //
@@ -71,6 +74,15 @@ const MapScreen = () => {
           accuracy: Location.Accuracy.BestForNavigation,
         },
         (location) => {
+          const earthRadius = 6371000; // Rayon de la Terre en mètres
+          const zoomDistance = 400; // Zoom de 400 mètres
+          // Calcul pour afficher un delta de 400 mètres autour de la position
+          const latitudeDelta = (zoomDistance / earthRadius) * (180 / Math.PI); // Est calculé en utilisant une approximation simple de la distance en latitude pour 400 mètres
+          const longitudeDelta =
+            (zoomDistance /
+              (earthRadius *
+                Math.cos((Math.PI * location.coords.latitude) / 180))) *
+            (180 / Math.PI); // Est ajusté en fonction de la latitude actuelle de l'utilisateur
           setRegion({
             latitude: location.coords.latitude,
             longitude: location.coords.longitude,
@@ -200,17 +212,25 @@ const MapScreen = () => {
   //Mise en place d'un état pour stocker temprairement le type de vélo (velib, ...)
   const [selectedBikeType, setSelectedBikeType] = useState("");
 
+  //Mise en place d'un état pour stocker temporairement les coordonnées d'un vélo pour l'isoler des autres
+  const [selectedCoords, setSelectedCoords] = useState(null);
+
+  //Mise en place d'une fonction closeModal permettant de faire passer de nouveau la valeur de bikeModalVisible à false et stocker cette valeur dans le reducer bikeSize
+  const closeModal = () => {
+    setBikeModalVisible(false);
+    setSelectedCoords(null); //réinitialiser l'état selectedCoords
+  };
+
   //afficher la modale onPress sur l'icône d'un vélo
-  const handlePressBike = (company) => {
+  const handlePressBike = (company, coords = null) => {
     //type de vélo passé en argument de la fonction
-    setSelectedBikeType(company); //stocker le type de vélo
     setBikeModalVisible(true); //passer la modale à visible
+    setSelectedBikeType(company); //stocker le type de vélo
+    setSelectedCoords(coords); //stocker les coordonnées d'un vélo pour pouvoir l'isoler des autres
   };
 
   const fetchBikes = () => {
-    fetch(
-      `http://192.168.100.119:3000/bikes/${region.latitude}/${region.longitude}`
-    )
+    fetch(`${FRONTEND_ADDRESS}/bikes/${region.latitude}/${region.longitude}`)
       .then((response) => response.json())
       .then((data) => {
         setVelib(data.velibData);
@@ -232,10 +252,16 @@ const MapScreen = () => {
   const companies = ["velib", "lime", "dott", "tier"];
   let allBikes = [];
 
-  let allFilters = [];
+  let allFilters = [
+    <BikeFilter
+      key="all bikes"
+      handleFilterPress={() => handleFilterPress()}
+      bikeType="all"
+    />,
+  ];
 
   const handleFilterPress = (str) => {
-    if (visibleCompanies.length === 1) {
+    if (!str) {
       setVisibleCompanies(["velib", "lime", "dott", "tier"]);
     } else {
       setVisibleCompanies([str]);
@@ -260,7 +286,12 @@ const MapScreen = () => {
                 ? true
                 : visibleCompanies.some((e) => company === e)
             }
-            onPress={() => handlePressBike(company)} //invoquer la fonction handlePressBike
+            //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non pour l'utiliser et adapter la taille de l'icône)
+            isSelected={
+              bike.latitude === selectedCoords?.latitude &&
+              bike.longitude === selectedCoords?.longitude
+            }
+            onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
           />
         );
       }
@@ -287,14 +318,18 @@ const MapScreen = () => {
                 ? true
                 : visibleCompanies.some((e) => company === e)
             }
-            onPress={() => handlePressBike(company)}
+            isSelected={
+              bike.latitude === selectedCoords?.latitude &&
+              bike.longitude === selectedCoords?.longitude
+            }
+            onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
           />
         );
       }
       allFilters.push(
         <BikeFilter
           key={company}
-          handleFilterPress={handleFilterPress}
+          handleFilterPress={(e) => handleFilterPress(e)}
           bikeType={company}
         />
       );
@@ -314,14 +349,18 @@ const MapScreen = () => {
                 ? true
                 : visibleCompanies.some((e) => company === e)
             }
-            onPress={() => handlePressBike(company)}
+            isSelected={
+              bike.latitude === selectedCoords?.latitude &&
+              bike.longitude === selectedCoords?.longitude
+            }
+            onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
           />
         );
       }
       allFilters.push(
         <BikeFilter
           key={company}
-          handleFilterPress={handleFilterPress}
+          handleFilterPress={(e) => handleFilterPress(e)}
           bikeType={company}
         />
       );
@@ -341,19 +380,50 @@ const MapScreen = () => {
                 ? true
                 : visibleCompanies.some((e) => company === e)
             }
-            onPress={() => handlePressBike(company)}
+            isSelected={
+              bike.latitude === selectedCoords?.latitude &&
+              bike.longitude === selectedCoords?.longitude
+            }
+            onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
           />
         );
       }
       allFilters.push(
         <BikeFilter
           key={company}
-          handleFilterPress={handleFilterPress}
+          handleFilterPress={(e) => handleFilterPress(e)}
           bikeType={company}
         />
       );
     }
   }
+
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //                                                                                                                                                        //
+  //                                                                                                                                                        //
+  //                                                                    RECUPERER HISTORIQUE DE TRAJET                                                      //
+  //                                                                                                                                                        //
+  //                                                                                                                                                        //
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  const token = useSelector((state) => state.user.value.token);
+
+  useEffect(() => {
+    if (origin && destination && duration) {
+      token &&
+        fetch("http://172.20.10.2:3000/rides", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            depart: origin,
+            arrival: destination,
+            travelTime: duration,
+            token: token,
+          }),
+        })
+          .then((response) => response.json())
+          .then(() => {});
+    }
+  }, [duration]);
 
   return (
     <View style={styles.container}>
@@ -392,6 +462,23 @@ const MapScreen = () => {
               </>
             )}
           </MapView>
+          <Modal animationType="fade" transparent={true} visible={modalEdit}>
+            <View style={styles.modalBackground}>
+              <View style={styles.modalView}>
+                <TouchableOpacity style={styles.btnBack}>
+                  <FontAwesome
+                    onPress={() => {
+                      setModalEdit(false);
+                    }}
+                    name="backward"
+                    size={20}
+                    color="#FFFFFF"
+                  />
+                </TouchableOpacity>
+                <EditProfile />
+              </View>
+            </View>
+          </Modal>
 
           {/* Container pour les champs de saisie */}
           <View style={styles.inputContainer}>
@@ -408,6 +495,15 @@ const MapScreen = () => {
                 radius: 5000,
               }}
             />
+            {/* Modal Edit user */}
+            <View style={styles.user}>
+              <FontAwesome
+                name="user"
+                onPress={() => setModalEdit(true)}
+                size={25}
+                color="#303F4A"
+              />
+            </View>
             <GooglePlacesAutocomplete
               placeholder="Destination"
               fetchDetails={true}
@@ -438,7 +534,14 @@ const MapScreen = () => {
             >
               <FontAwesome name="refresh" size={20} />
             </TouchableOpacity>
-            {allFilters}
+
+            <ScrollView
+              alwaysBounceHorizontal={true}
+              horizontal={true}
+              contentContainerStyle={styles.filtersScrollViewContent}
+            >
+              <View style={styles.bikeFiltersContainer}>{allFilters}</View>
+            </ScrollView>
           </View>
           {origin && destination && (
             <MapViewDirections
@@ -475,7 +578,7 @@ const MapScreen = () => {
       <BikeModal
         bikeType={selectedBikeType}
         modalVisible={bikeModalVisible}
-        closeModal={() => setBikeModalVisible(false)}
+        closeModal={() => closeModal()}
         style={styles.bikeModal}
       />
     </View>
@@ -492,6 +595,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
   inputContainer: {
+    zindex: 2,
     position: "absolute",
     top: 50,
     width: "90%",
@@ -529,11 +633,19 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   filters: {
+    flex: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
-    zIndex: 99,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
     position: "absolute",
     top: 180,
+    width: "90%",
+  },
+  filtersScrollViewContent: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingHorizontal: 10,
   },
   refreshBikes: {
     width: 25,
@@ -544,12 +656,46 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
+    marginHorizontal: 5,
   },
-
+  bikeFiltersContainer: {
+    flexDirection: "row",
+    width: "100%",
+  },
   bikeModal: {
     zIndex: 99,
     position: "absolute",
     bottom: 180,
+  },
+
+  modalView: {
+    height: "100%",
+    width: "40%",
+    borderRadius: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalBackground: {
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    height: "90.25%",
+  },
+  btnBack: {
+    position: "absolute",
+    zIndex: 99,
+    top: 45,
+    right: -20,
+  },
+  user: {
+    position: "absolute",
+    top: 20,
+    right: 20,
   },
 });
 

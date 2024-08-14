@@ -6,9 +6,6 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 
 export default function ArrivalModal() {
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
   // affichage de modal
   const [isModalVisible, setModalVisible] = useState(true);
   // variable pour utiliser de recuperer nombre detoile
@@ -43,7 +40,7 @@ export default function ArrivalModal() {
     renderStars();
   }
   useEffect(() => {
-    fetch("http://192.168.100.78:3000/stats", {
+    fetch(`${FRONTEND_ADDRESS}/stats`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -70,13 +67,12 @@ export default function ArrivalModal() {
           </View>
           <View style={styles.main}>
             <Text>{afficheStar}</Text>
-
             <Text style={styles.textRate}>Rate your Bake!</Text>
           </View>
           <View style={styles.emojiContainer}>
             <View style={styles.emoji}>
               <Entypo
-                style={styles.btn}
+                style={noteRide === "bad" ? styles.bad : styles.btn}
                 name="emoji-sad"
                 size={25}
                 onPress={() => {
@@ -84,7 +80,7 @@ export default function ArrivalModal() {
                 }}
               />
               <Entypo
-                style={styles.btn}
+                style={noteRide === "moyen" ? styles.bad : styles.btn}
                 name="emoji-neutral"
                 size={25}
                 onPress={() => {
@@ -92,7 +88,7 @@ export default function ArrivalModal() {
                 }}
               />
               <Entypo
-                style={styles.btn}
+                style={noteRide === "top" ? styles.bad : styles.btn}
                 name="emoji-happy"
                 size={25}
                 onPress={() => {
@@ -144,6 +140,10 @@ const styles = StyleSheet.create({
     fontSize: "50%",
     color: "#C0DCF0",
   },
+  bad: {
+    transform: [{ scale: 2 }],
+    color: "#E3CF12",
+  },
   emojiContainer: {
     alignItems: "center",
   },
@@ -157,58 +157,3 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
 });
-
-// import { StyleSheet, Text, TouchableOpacity, View, Modal } from "react-native";
-
-// import React, { useEffect, useState, useRef } from "react";
-// import FontAwesome from "react-native-vector-icons/FontAwesome";
-
-// export default function NoteModalScreen() {
-//   const [modalVisible, setModalVisible] = useState(false);
-//   const [bikeNote, setBikeNote] = useState(0);
-
-//   let style = null;
-
-//   const noteStars = [];
-//   for (let i = 0; i < 5; i++) {
-//     if (i < bikeNote) {
-//       style = { color: "#2196f3" };
-//     }
-//     noteStars.push(
-//       <FontAwesome
-//         key={i}
-//         name="star-o"
-//         onPress={() => setBikeNote(i + 1)}
-//         style={style}
-//       />
-//     );
-//   }
-
-//   return (
-//     <View style={styles.container}>
-//       <Modal
-//         animationType="fade"
-//         transparent={true}
-//         visible={modalVisible}
-//         onRequestClose={() => {
-//           setModalVisible(false);
-//         }}
-//       >
-//         <FontAwesome
-//           style={styles.btn}
-//           name="close"
-//           size={25}
-//           onPress={() => {
-//             setModalVisible(false);
-//           }}
-//         />
-//         <View style={styles.starNote}>
-//           <Text>{noteStars}</Text>
-//           <Text>Rate your bike !</Text>
-//         </View>
-//       </Modal>
-//     </View>
-//   );
-// }
-
-// const styles = StyleSheet.create({});

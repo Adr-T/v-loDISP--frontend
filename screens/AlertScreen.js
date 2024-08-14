@@ -8,7 +8,7 @@ export default function AlertScreen() {
 
   const [dataAlert, setDataAlert] = useState(null);
   useEffect(() => {
-    fetch(`http://192.168.100.78:3000/alerts`)
+    fetch(`${FRONTEND_ADDRESS}/alerts`)
       .then((response) => response.json())
       .then((data) => {
         setDataAlert(data.dataOriginal);
