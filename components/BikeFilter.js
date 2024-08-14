@@ -2,20 +2,20 @@ import react from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 export default function BikeFilter(props) {
-  //Mise en place de la mécanique d'inverse data flow pour la fonction handleFilterPress
-  const handleFilter = () => {
-    props.handleFilterPress(props.bikeType);
-  };
+    //Mise en place de la mécanique d'inverse data flow pour la fonction handleFilterPress
+    const handleFilter = () => {
+        props.handleFilterPress(props.bikeType);
+    };
 
-  return (
-    //Créer un bouton pour chaque type de filtre en utilisant la mécanique de props
-    <TouchableOpacity
-      style={styles[props.bikeType]}
-      onPress={() => handleFilter()}
-    >
-      <Text style={{ color: "#ffffff" }}>{props.bikeType}</Text>
-    </TouchableOpacity>
-  );
+    return (
+        //Créer un bouton pour chaque type de filtre en utilisant la mécanique de props
+        <TouchableOpacity
+            style={styles[props.bikeType]}
+            onPress={() => handleFilter()}
+        >
+            <Text style={{ color: "#ffffff" }}>{props.bikeType}</Text>
+        </TouchableOpacity>
+    );
 }
 
 const styles = StyleSheet.create({
