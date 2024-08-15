@@ -28,8 +28,11 @@ export const userSlice = createSlice({
       state.value.email = null;
       state.value.isConnected = false;
     },
+    updateUsername: (state, action) => {
+      state.value.username = action.payload;
+    },
   },
 });
 
-export const { login, logout } = userSlice.actions;
+export const { login, logout, updateUsername } = userSlice.actions;
 export default userSlice.reducer;

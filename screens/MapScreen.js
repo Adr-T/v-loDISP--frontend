@@ -2,40 +2,47 @@ import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
-  TextInput,
-  Button,
   StyleSheet,
-  Dimensions,
   ScrollView,
   TouchableOpacity,
-  Platform,
   Modal,
+  Platform,
+  TouchableWithoutFeedback,
+  screenWidth,
 } from "react-native";
-import MapView, {
+import {
   Marker,
   Polyline,
   PROVIDER_GOOGLE,
   PROVIDER_DEFAULT,
 } from "react-native-maps";
+import MapView from "react-native-map-clustering";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 // import { mapStyle } from "../styles/mapstyle";
 import { Linking } from "react-native"; // pour permettre de rediriger vers GoogleMaps
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import * as geolib from "geolib";
+//imports des composants
 import Bike from "../components/Bike"; //importer le composant Bike afin de l'utiliser dans Mapscreen
 import BikeFilter from "../components/BikeFilter"; //importer le composant BikeFilter afin de l'utiliser dans Mapscreen
 import BikeModal from "../components/BikeModal"; //importer le composant BikeModal afin de l'utiliser dans Mapscreen
 import ArrivalModal from "../components/ArrivalModal";
-import * as geolib from "geolib";
+import EditProfile from "../components/EditProfile";
+import NoteModalScreen from "../components/NoteModalScreen"; //importer le composant NoteModalScreen pour l'utiliser dans Mapscreen
+
+//imports concernant redux
 import { useSelector } from "react-redux";
-import NoteModalScreen from "../components/NoteModalScreen";
-
+import EditProfileBlank from "../components/EditProfileBlank";
 const GOOGLE_MAPS_APIKEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY;
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
-const BACKEND_ADDRESS = process.env.BACKEND_ADDRESS;
-
-const MapScreen = () => {
+const MapScreen = ({ navigation, mapStyle }) => {
+  // Utilisation du hook useSelector pour accéder à l'état de l'utilisateur dans Redux
+  const user = useSelector((state) => state.user.value);
+  // Bouton qui mène à la modale pour editer le profile, params etc
+  const [modalEdit, setModalEdit] = useState(false);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                                                                        //
   //                                                                                                                                                        //
@@ -55,7 +62,20 @@ const MapScreen = () => {
   const [locationLoaded, setLocationLoaded] = useState(false);
   const mapRef = useRef(null); // Référence pour la carte
   const [isModalVisible, setModalVisible] = useState(false); //on utilise pour afficher modal
-  const [NoteModalVisible, setNoteModalVisible] = useState(false);
+  const [NoteModalVisible, setNoteModalVisible] = useState(false); //mise en place d'un état pour stocker temporairement la note donnée au trajet
+  const [showclearRouteBtn, setShowClearRouteBtn] = useState(false); //mise en place d'un état pour afficher le bouton caché
+
+  // Mise en place d'un fonction getCoordinates permettant de récupérer la position sur laquelle la carte est centrée ainsi que rappeler le fetchBikes pour l'utiliser avec le bouton refresh bikes
+  const getCoordinates = () => {
+    if (mapRef.current) {
+      //getCamera correspond au lieu visible/affiché surr la carte
+      mapRef.current.getCamera().then((camera) => {
+        const { center } = camera;
+        //appliquer à la fonction fetchBikes les arguments de latitude et longitude récupérés
+        fetchBikes(center?.latitude, center?.longitude);
+      });
+    }
+  };
 
   // Utilisation de useEffect pour obtenir la localisation actuelle lors du montage du composant
   useEffect(() => {
@@ -74,11 +94,20 @@ const MapScreen = () => {
           accuracy: Location.Accuracy.BestForNavigation,
         },
         (location) => {
+          const earthRadius = 6371000; // Rayon de la Terre en mètres
+          const zoomDistance = 400; // Zoom de 400 mètres
+          // Calcul pour afficher un delta de 400 mètres autour de la position
+          const latitudeDelta = (zoomDistance / earthRadius) * (180 / Math.PI); // Est calculé en utilisant une approximation simple de la distance en latitude pour 400 mètres
+          const longitudeDelta =
+            (zoomDistance /
+              (earthRadius *
+                Math.cos((Math.PI * location?.coords?.latitude) / 180))) *
+            (180 / Math.PI); // Est ajusté en fonction de la latitude actuelle de l'utilisateur
           setRegion({
-            latitude: location.coords.latitude,
-            longitude: location.coords.longitude,
-            latitudeDelta: 0.0922,
-            longitudeDelta: 0.0421,
+            latitude: location?.coords?.latitude || 0.0,
+            longitude: location?.coords?.longitude || 0.0,
+            latitudeDelta: latitudeDelta,
+            longitudeDelta: longitudeDelta,
           });
           // Définir le point de départ comme la localisation actuelle
           setOrigin(location.coords);
@@ -114,7 +143,23 @@ const MapScreen = () => {
     setSteps([]);
     setDistance("");
     setDuration("");
+    setDestination(null);
+    setShowClearRouteBtn(false); // Cache le bouton après réinitialisation
   };
+
+  // Gérer l'apparition du bouton clearRoute lorsqu'un trajet est recherché en vérifiant les conditions du trajet
+  const handleClearRouteBtn = () => {
+    if (routeCoordinates && steps.length > 0 && distance && duration) {
+      setShowClearRouteBtn(true);
+    } else {
+      setShowClearRouteBtn(false); // Cache le bouton si les conditions ne sont pas remplies
+    }
+  };
+
+  // Utiliser useEffect pour surveiller les changements des états concernés
+  useEffect(() => {
+    handleClearRouteBtn();
+  }, [routeCoordinates, steps, distance, duration]); // Déclenche handleClearRouteBtn lorsque ces états changent
 
   // Gérer la sélection des lieux avec autocomplétion
   const handlePlaceSelect = (type, details) => {
@@ -135,9 +180,31 @@ const MapScreen = () => {
   // redirection vers google maps méthode linking/deeplink
   const openGoogleMaps = () => {
     if (origin && destination) {
+      // const url = Platform.select({
+      //   ios: `comgooglemaps://?saddr=${origin.latitude},${origin.longitude}&daddr=${destination.latitude},${destination.longitude}&directionsmode=bicycling`,
+      //   android: `google.navigation:q=${destination.latitude},${destination.longitude}&travelmode=bicycling`,
+      // });
       const url = `https://www.google.com/maps/dir/?api=1&origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=bicycling`;
       Linking.openURL(url);
     }
+  };
+
+  // Fonction pour recentrer sur la position actuelle
+  const centerOnUserLocation = async () => {
+    mapRef.current.animateToRegion(
+      {
+        latitude: region?.latitude || 0.0,
+        longitude: region?.longitude || 0.0,
+        latitudeDelta: 0.005,
+        longitudeDelta: 0.005,
+      },
+      1000
+    );
+  };
+
+  // Fonction pour réorienter la carte vers le nord
+  const orientToNorth = () => {
+    mapRef.current.animateCamera({ heading: 0 }, { duration: 500 });
   };
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -148,17 +215,17 @@ const MapScreen = () => {
   //                                                                                                                                                        //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //  useeffect pour calculer la distance entre la localisation actuelle  et destination pour afficher modal
+  //  useEffect pour calculer la distance entre la localisation actuelle et destination pour afficher la modal de notation
   // console.log(region.latitude);
   useEffect(() => {
     async function fetchData() {
-      const latitude = await region.latitude;
-      const longitude = await region.longitude;
+      const latitude = region?.latitude || 0.0;
+      const longitude = region?.longitude || 0.0;
       if (
         latitude &&
         longitude &&
-        destination.latitude &&
-        destination.longitude
+        destination?.latitude &&
+        destination?.longitude
       ) {
         const dist = geolib.getDistance(
           // la location ou on est
@@ -168,10 +235,10 @@ const MapScreen = () => {
           },
           // location ou on va
           {
-            latitude: destination.latitude
+            latitude: destination?.latitude
               ? destination.latitude
               : e.nativeEvent.coordinate,
-            longitude: destination.longitude
+            longitude: destination?.longitude
               ? destination.longitude
               : e.nativeEvent.coordinate,
           }
@@ -220,28 +287,38 @@ const MapScreen = () => {
   //Mise en place d'un état pour stocker temprairement le type de vélo (velib, ...)
   const [selectedBikeType, setSelectedBikeType] = useState("");
 
-  //afficher la modale onPress sur l'icône d'un vélo
-  const handlePressBike = (company) => {
-    //type de vélo passé en argument de la fonction
-    setSelectedBikeType(company); //stocker le type de vélo
-    setBikeModalVisible(true); //passer la modale à visible
+  //Mise en place d'un état pour stocker temporairement les coordonnées d'un vélo pour l'isoler des autres
+  const [selectedCoords, setSelectedCoords] = useState(null);
+
+  //Mise en place d'une fonction closeModal permettant de faire passer de nouveau la valeur de bikeModalVisible à false et stocker cette valeur dans le reducer bikeSize
+  const closeModal = () => {
+    setBikeModalVisible(false);
+    setSelectedCoords(null); //réinitialiser l'état selectedCoords
   };
 
-  const fetchBikes = () => {
+  //afficher la modale onPress sur l'icône d'un vélo
+  const handlePressBike = (company, coords = null) => {
+    //type de vélo passé en argument de la fonction
+    setBikeModalVisible(true); //passer la modale à visible
+    setSelectedBikeType(company); //stocker le type de vélo
+    setSelectedCoords(coords); //stocker les coordonnées d'un vélo pour pouvoir l'isoler des autres
+  };
+
+  // Mise en place de la fonction fetchBikes prenant en arguments newLat, newLon (ils correspondent center.latitude et center.longitude dans la fonction getCoordinates)
+  const fetchBikes = (newLat, newLon) => {
+    //Si les arguments sont passés, ils sont pris en compte par le fetch, sinon la position de l'utilisateur est prise en compte
     fetch(
-      `http://192.168.100.78:3000/bikes/${region.latitude}/${region.longitude}`
+      `${FRONTEND_ADDRESS}/bikes/${newLat ? newLat : region.latitude}/${
+        newLon ? newLon : region.longitude
+      }`
     )
       .then((response) => response.json())
       .then((data) => {
         setVelib(data.velibData);
         setLime(data.limeData);
-        // setDott(data.dottData);
-        // setTier(data.tierData);
+        setDott(data.dottData);
+        setTier(data.tierData);
       });
-  };
-
-  const handleRefreshBikes = () => {
-    fetchBikes();
   };
 
   //afficher les vélos disponibles par marque
@@ -252,10 +329,16 @@ const MapScreen = () => {
   const companies = ["velib", "lime", "dott", "tier"];
   let allBikes = [];
 
-  let allFilters = [];
+  let allFilters = [
+    <BikeFilter
+      key="all bikes"
+      handleFilterPress={() => handleFilterPress()}
+      bikeType="all"
+    />,
+  ];
 
   const handleFilterPress = (str) => {
-    if (visibleCompanies.length === 1) {
+    if (!str) {
       setVisibleCompanies(["velib", "lime", "dott", "tier"]);
     } else {
       setVisibleCompanies([str]);
@@ -266,22 +349,31 @@ const MapScreen = () => {
     if (company === "velib") {
       for (const bike of velib) {
         let coordinates = {
-          latitude: bike.latitude,
-          longitude: bike.longitude,
+          latitude: bike?.latitude,
+          longitude: bike?.longitude,
         };
 
         allBikes.push(
-          <Bike
+          <Marker
+            coordinate={coordinates}
             key={bike.stationId}
-            coords={coordinates}
-            bikeType={company}
-            isVisible={
-              visibleCompanies.length === 0
-                ? true
-                : visibleCompanies.some((e) => company === e)
-            }
-            onPress={() => handlePressBike(company)} //invoquer la fonction handlePressBike
-          />
+            onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
+            style={{
+              display: visibleCompanies.some((e) => company === e)
+                ? "flex"
+                : "none",
+            }}
+          >
+            <Bike
+              key={bike.stationId}
+              bikeType={company}
+              //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non pour l'utiliser et adapter la taille de l'icône)
+              isSelected={
+                bike.latitude === selectedCoords?.latitude &&
+                bike.longitude === selectedCoords?.longitude
+              }
+            />
+          </Marker>
         );
       }
       allFilters.push(
@@ -298,23 +390,31 @@ const MapScreen = () => {
           longitude: bike.longitude,
         };
         allBikes.push(
-          <Bike
+          <Marker
             key={bike.bikeId}
-            coords={coordinates}
-            bikeType={company}
-            isVisible={
-              visibleCompanies.length === 0
-                ? true
-                : visibleCompanies.some((e) => company === e)
-            }
-            onPress={() => handlePressBike(company)}
-          />
+            coordinate={coordinates}
+            onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
+            style={{
+              display: visibleCompanies.some((e) => company === e)
+                ? "flex"
+                : "none",
+            }}
+          >
+            <Bike
+              key={bike.bikeId}
+              bikeType={company}
+              isSelected={
+                bike.latitude === selectedCoords?.latitude &&
+                bike.longitude === selectedCoords?.longitude
+              }
+            />
+          </Marker>
         );
       }
       allFilters.push(
         <BikeFilter
           key={company}
-          handleFilterPress={handleFilterPress}
+          handleFilterPress={(e) => handleFilterPress(e)}
           bikeType={company}
         />
       );
@@ -325,23 +425,31 @@ const MapScreen = () => {
           longitude: bike.longitude,
         };
         allBikes.push(
-          <Bike
+          <Marker
             key={bike.bikeId}
-            coords={coordinates}
-            bikeType={company}
-            isVisible={
-              visibleCompanies.length === 0
-                ? true
-                : visibleCompanies.some((e) => company === e)
-            }
-            onPress={() => handlePressBike(company)}
-          />
+            coordinate={coordinates}
+            onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
+            style={{
+              display: visibleCompanies.some((e) => company === e)
+                ? "flex"
+                : "none",
+            }}
+          >
+            <Bike
+              key={bike.bikeId}
+              bikeType={company}
+              isSelected={
+                bike.latitude === selectedCoords?.latitude &&
+                bike.longitude === selectedCoords?.longitude
+              }
+            />
+          </Marker>
         );
       }
       allFilters.push(
         <BikeFilter
           key={company}
-          handleFilterPress={handleFilterPress}
+          handleFilterPress={(e) => handleFilterPress(e)}
           bikeType={company}
         />
       );
@@ -352,35 +460,50 @@ const MapScreen = () => {
           longitude: bike.longitude,
         };
         allBikes.push(
-          <Bike
+          <Marker
             key={bike.bikeId}
-            coords={coordinates}
-            bikeType={company}
-            isVisible={
-              visibleCompanies.length === 0
-                ? true
-                : visibleCompanies.some((e) => company === e)
-            }
-            onPress={() => handlePressBike(company)}
-          />
+            coordinate={coordinates}
+            onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
+            style={{
+              display: visibleCompanies.some((e) => company === e)
+                ? "flex"
+                : "none",
+            }}
+          >
+            <Bike
+              key={bike.bikeId}
+              bikeType={company}
+              isSelected={
+                bike.latitude === selectedCoords?.latitude &&
+                bike.longitude === selectedCoords?.longitude
+              }
+            />
+          </Marker>
         );
       }
       allFilters.push(
         <BikeFilter
           key={company}
-          handleFilterPress={handleFilterPress}
+          handleFilterPress={(e) => handleFilterPress(e)}
           bikeType={company}
         />
       );
     }
   }
 
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //                                                                                                                                                        //
+  //                                                                                                                                                        //
+  //                                                                    RECUPERER HISTORIQUE DE TRAJET                                                      //
+  //                                                                                                                                                        //
+  //                                                                                                                                                        //
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   const token = useSelector((state) => state.user.value.token);
 
   useEffect(() => {
     if (origin && destination && duration) {
       token &&
-        fetch("http://192.168.100.78:3000/rides", {
+        fetch(`${FRONTEND_ADDRESS}/rides`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -394,6 +517,7 @@ const MapScreen = () => {
           .then(() => {});
     }
   }, [duration]);
+
   return (
     <View style={styles.container}>
       {region && (
@@ -401,13 +525,27 @@ const MapScreen = () => {
           <MapView
             ref={mapRef}
             style={styles.map}
-            // customMapStyle={mapStyle}
-            // provider={
-            //   Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
-            // }
-            initialRegion={region}
+            customMapStyle={mapStyle}
+            provider={
+              Platform.OS === "android" ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
+            }
+            region={region}
             showsUserLocation
+            showsMyLocationButton={false} // Désactiver le bouton de localisation par défaut
+            rotateEnabled={true} // Désactiver l'orientation par défaut
+            showsCompass={false} // Désactiver l'icône de la boussole
             onLongPress={handleMapPress} // Appelée lorsque l'utilisateur appuie longtemps sur la carte
+            // clusterColor={
+            //   company === "velib"
+            //     ? "#2280F5"
+            //     : "lime"
+            //     ? "#07D603"
+            //     : "dott"
+            //     ? "#1AABEB"
+            //     : "tier"
+            //     ? "#172156"
+            //     : ""
+            // }
           >
             {allBikes}
             {origin && (
@@ -423,14 +561,68 @@ const MapScreen = () => {
 
             {routeCoordinates.length > 0 && (
               <>
+                {/* ligne principale */}
+                <Polyline
+                  coordinates={routeCoordinates} // Tracer l'itinéraire sur la carte
+                  strokeWidth={8}
+                  // fallback for when `strokeColors` is not supported by the map-provider
+                  strokeColors={[
+                    "#37678A",
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#B24112",
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#E5845C",
+                    // "#238C23",
+                    // "#7F0000",
+                    // "#7F0000",
+                  ]}
+                />
+                {/* ligne pour bordure */}
                 <Polyline
                   coordinates={routeCoordinates} // Tracer l'itinéraire sur la carte
                   strokeWidth={6}
-                  strokeColor="#37678A"
+                  strokeColor="#C1DBF0"
                 />
               </>
             )}
           </MapView>
+          {/* Bouton pour recentrer sur la position */}
+          <TouchableOpacity
+            style={styles.locationButton}
+            onPress={centerOnUserLocation}
+          >
+            <FontAwesome name="location-arrow" size={24} color="#fff" />
+          </TouchableOpacity>
+
+          {/* Bouton pour réorienter vers le nord */}
+          <TouchableOpacity style={styles.northButton} onPress={orientToNorth}>
+            <FontAwesome name="compass" size={24} color="#fff" />
+          </TouchableOpacity>
+          <Modal animationType="fade" transparent={true} visible={modalEdit}>
+            <TouchableWithoutFeedback onPress={() => setModalEdit(false)}>
+              <View style={styles.modalBackground}>
+                <View style={styles.modalView}>
+                  <TouchableOpacity
+                    style={styles.btnBack}
+                    onPress={() => {
+                      setModalEdit(false);
+                    }}
+                  >
+                    <Text style={styles.cross}>x</Text>
+                  </TouchableOpacity>
+                  {user.isConnected ? (
+                    <EditProfile navigation={navigation} />
+                  ) : (
+                    <EditProfileBlank navigation={navigation} />
+                  )}
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
 
           {/* Container pour les champs de saisie */}
           <View style={styles.inputContainer}>
@@ -447,6 +639,15 @@ const MapScreen = () => {
                 radius: 5000,
               }}
             />
+            {/* Modal Edit user */}
+            <View style={styles.user}>
+              <FontAwesome
+                name="user"
+                onPress={() => setModalEdit(true)}
+                size={25}
+                color="#303F4A"
+              />
+            </View>
             <GooglePlacesAutocomplete
               placeholder="Destination"
               fetchDetails={true}
@@ -471,19 +672,25 @@ const MapScreen = () => {
           <View style={styles.filters}>
             <TouchableOpacity
               style={styles.refreshBikes}
-              onPress={() => {
-                handleRefreshBikes;
-              }}
+              onPress={() => getCoordinates()}
             >
               <FontAwesome name="refresh" size={20} />
             </TouchableOpacity>
-            {allFilters}
+
+            <ScrollView
+              alwaysBounceHorizontal={true}
+              horizontal={true}
+              contentContainerStyle={styles.filtersScrollViewContent}
+            >
+              <View style={styles.bikeFiltersContainer}>{allFilters}</View>
+            </ScrollView>
           </View>
           {origin && destination && (
             <MapViewDirections
               origin={origin} // Point de départ
               destination={destination} // Point d'arrivée
               apikey={GOOGLE_MAPS_APIKEY}
+              mode="BICYCLING"
               strokeWidth={3}
               strokeColor="#37678A"
               onReady={handleDirectionsReady}
@@ -525,8 +732,18 @@ const MapScreen = () => {
       <BikeModal
         bikeType={selectedBikeType}
         modalVisible={bikeModalVisible}
-        closeModal={() => setBikeModalVisible(false)}
+        closeModal={() => closeModal()}
+        style={styles.bikeModal}
       />
+      {showclearRouteBtn && (
+        <TouchableOpacity
+          style={styles.clearRouteBtn}
+          size={30}
+          onPress={() => resetRoute()}
+        >
+          <Text style={styles.txtClearRouteBtn}>Clear Route</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -541,6 +758,8 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
   inputContainer: {
+    zIndex: 3,
+    elevation: 3,
     position: "absolute",
     top: 50,
     width: "90%",
@@ -554,79 +773,140 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
 
+  locationButton: {
+    position: "absolute",
+    top: 250,
+    left: 20,
+    backgroundColor: "#37678A",
+    borderRadius: 100,
+    padding: 5,
+    elevation: 5,
+  },
+  northButton: {
+    position: "absolute",
+    top: 300,
+    left: 20,
+    backgroundColor: "#37678A",
+    borderRadius: 100,
+    padding: 5,
+    elevation: 5,
+  },
+
   directionsContainer: {
     bottom: 0,
     backgroundColor: "#303F4A",
     width: "100%",
-    height: "10%",
-    borderRadius: 10,
+    height: "12%",
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "row",
+    top: 10,
   },
 
   txtdirections: {
     color: "#C1DBF0",
     fontSize: 16,
     fontWeight: "bold",
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 3,
   },
 
   directionBtn: {
-    shadowColor: "#C1DBF0",
+    shadowColor: "black",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
+    shadowOpacity: 0.6,
     shadowRadius: 3,
   },
   filters: {
+    zIndex: 1,
+    elevation: 1,
     flexDirection: "row",
-    justifyContent: "space-between",
-    zIndex: 99,
+    justifyContent: "center",
+    alignItems: "center",
     position: "absolute",
     top: 180,
+    width: "90%",
+  },
+  filtersScrollViewContent: {
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingHorizontal: 10,
   },
   refreshBikes: {
-    // zIndex: 99,
-    // position: "absolute",
-    // top: 175,
-    // left: 200,
     width: 25,
     height: 25,
     borderRadius: 60,
     borderWidth: 2,
     borderColor: "#323232",
     backgroundColor: "#fff",
-    // marginTop: 10,
     justifyContent: "center",
     alignItems: "center",
-    // borderRadius: 10,
-    // width: "100%",
-
-    // shadowColor: "#000",
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 2,
-    // },
-    // shadowOpacity: 0.25,
-    // shadowRadius: 4,
-    // elevation: 5,
+    marginHorizontal: 5,
   },
-  // containerModal: {
-  //   // flex: 1,
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  // },
-  // container: {
-  //   minHeight: "50%",
-  //   backgroundColor: "#303F4A",
-  //   alignItems: "center",
-  //   justifyContent: "center",
-  //   borderRadius: "50",
-  // },
-  // text: {
-  //   fontSize: "30%",
-  //   color: "#C1DBF0",
-  //   marginBottom: "10%",
-  // },
+  bikeFiltersContainer: {
+    flexDirection: "row",
+    width: "100%",
+  },
+  bikeModal: {
+    zIndex: 2,
+    position: "absolute",
+    bottom: 180,
+  },
+  clearRouteBtn: {
+    width: 110,
+    height: 50,
+    borderRadius: 50,
+    backgroundColor: "#719DBD",
+    position: "absolute",
+    bottom: 81,
+    left: 150,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 100,
+    elevation: 10,
+  },
+  txtClearRouteBtn: {
+    color: "#C1DBF0",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
+  modalView: {
+    height: "100%",
+    width: "40%",
+    borderRadius: 20,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalBackground: {
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    height: "90.25%",
+  },
+
+  btnBack: {
+    position: "absolute",
+    zIndex: 99,
+    top: 45,
+    right: -20,
+  },
+  cross: {
+    color: "#fff",
+    fontSize: 20,
+  },
+  user: {
+    position: "absolute",
+    top: 20,
+    right: 35,
+  },
 });
 
 export default MapScreen;

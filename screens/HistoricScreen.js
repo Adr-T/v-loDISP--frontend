@@ -1,23 +1,32 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
+
 // librairie qui convertir la date
 import { format } from "date-fns";
 
 import { useEffect, useState } from "react";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useSelector } from "react-redux";
+// import NoteModalScreen from "../components/NoteModalScreen";
+
+// déclaration de la variable d'environnement
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
 export default function HistoricScreen() {
-  // variable declarer avec useSelector pour recuperer token de lutilisateur depuis recuer
+  // fonction utilisant useSelector pour lire le token de l'utilisateur depuis le reducer
   const token = useSelector((state) => state.user.value.token);
+
+  // état pour stocker temporairement les notes des trajets
   const [statData, setStatData] = useState([]);
 
-  // variable pour recuperer les donee
+  // état pour stocker temporairement les données de l'historique
   const [data, setData] = useState(null);
+
+  // création d'un useEffect permettant de récupérer l'historique des trajets
   useEffect(() => {
     // fetch pour recuperer les donné
     token &&
-      fetch("http://192.168.100.78:3000/rides/historique", {
+      fetch(`${FRONTEND_ADDRESS}/rides/historique`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -32,9 +41,11 @@ export default function HistoricScreen() {
           }
         });
   }, []);
+
+  // création d'un deuxième useEffect permettant de récupérer les notes des trajets
   useEffect(() => {
     token &&
-      fetch(`http://192.168.100.78:3000/stats/${token}`)
+      fetch(`${FRONTEND_ADDRESS}/stats/${token}`)
         .then((response) => response.json())
         .then((data) => {
           // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
@@ -52,7 +63,7 @@ export default function HistoricScreen() {
     }
   }
 
-  // on utilise une variable pour afficher a la fin les element retourne apres d'avoir utiliser le map sur la data q'on  a recu
+  // déclarer la fonction historique permettant d'afficher le trajet effectué
   const historique =
     data &&
     data.map((el, index) => {
@@ -68,7 +79,9 @@ export default function HistoricScreen() {
             <Text style={styles.text}>
               date: {format(el.date, "MM/dd/yyyy")}
             </Text>
-            <Text style={styles.text}>note: {strUcFirst(el.note)}</Text>
+            <Text style={styles.text}>
+              note: {el.note[0].toUpperCase() + el.note.slice(1)}
+            </Text>
           </View>
         </View>
       );
@@ -123,5 +136,6 @@ const styles = StyleSheet.create({
     marginBottom: "1%",
     padding: 15,
     width: "100%",
+    borderRadius: 15,
   },
 });

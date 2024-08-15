@@ -6,6 +6,8 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
 import { useSelector } from "react-redux";
 
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
+
 export default function NoteModalScreen({
   NoteModalVisible,
   setNoteModalVisible,
@@ -19,9 +21,8 @@ export default function NoteModalScreen({
   // affichage des star
   // const [afficheStar, setAfficheStar] = useState(null);
   // pour calculer l'index ou on a clické
-
   // const handleStarPress = (starIndex) => {
-  //   setRating(starIndex + 1);
+  //     setRating(starIndex + 1);
   // };
 
   // const renderStars = () => {
@@ -47,8 +48,9 @@ export default function NoteModalScreen({
   // }, [rating]);
 
   const token = useSelector((state) => state.user.value.token);
+
   useEffect(() => {
-    fetch(`http://192.168.100.78:3000/stats`, {
+    fetch(`${FRONTEND_ADDRESS}/stats`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -82,10 +84,8 @@ export default function NoteModalScreen({
             <Text style={styles.text}>back to VeloDISPØ</Text>
           </View>
           {/* <View style={styles.main}>
-            <Text>{afficheStar}</Text>
-
-            <Text style={styles.textRate}>Rate your Bake!</Text>
-          </View> */}
+            <Text>{afficheStar}</Text><Text style={styles.textRate}>Rate your Bake!</Text>
+      </View> */}
           <View style={styles.emojiContainer}>
             <View style={styles.emoji}>
               <Entypo

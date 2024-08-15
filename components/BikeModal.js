@@ -1,10 +1,11 @@
 import {
-    StyleSheet,
-    Text,
-    View,
-    Modal,
-    TouchableOpacity,
-    Platform,
+  StyleSheet,
+  Text,
+  View,
+  Modal,
+  TouchableOpacity,
+  Platform,
+  TouchableWithoutFeedback,
 } from "react-native";
 import React from "react";
 import { useState, useEffect } from "react";
@@ -13,106 +14,118 @@ import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 //Créer un composant BikeModal avec 3 propriétés en argument
 export default function BikeModal({ modalVisible, closeModal, bikeType }) {
-    // console.log(bikeType);
+  // console.log(bikeType);
 
-    //rediriger vers une app externe
-    const openExternalApp = () => {
-        //condition si la props bikeType est égale à velib
-        if (bikeType === "velib") {
-            const url = () => {
-                return Platform.OS === "ios"
-                    ? "https://apps.apple.com/fr/app/v%C3%A9lib-app-officielle/id577807727"
-                    : "https://play.google.com/store/apps/details?id=com.paris.velib&hl=fr";
-            };
-            Linking.openURL(url());
-        } else if (bikeType === "lime") {
-            const url = () => {
-                return Platform.OS === "ios"
-                    ? "https://apps.apple.com/us/app/lime-ridegreen/id1199780189"
-                    : "https://play.google.com/store/apps/details?id=com.limebike&hl=fr";
-            };
-            Linking.openURL(url());
-        } else if (bikeType === "dott") {
-            const url = () => {
-                return Platform.OS === "ios"
-                    ? "https://apps.apple.com/be/app/dott-unlock-your-city/id1440301673"
-                    : "https://play.google.com/store/apps/details?id=com.ridedott.rider&hl=fr";
-            };
-            Linking.openURL(url());
-        } else if (bikeType === "tier") {
-            const url = () => {
-                return Platform.OS === "ios"
-                    ? "https://apps.apple.com/fr/app/tier-move-better/id1436140272"
-                    : "https://play.google.com/store/apps/details?id=com.tier.app&hl=en&gl=US";
-            };
-            Linking.openURL(url());
-        }
-    };
+  //rediriger vers une app externe
+  const openExternalApp = () => {
+    //condition si la props bikeType est égale à velib
+    if (bikeType === "velib") {
+      const url = () => {
+        return Platform.OS === "ios"
+          ? "https://apps.apple.com/fr/app/v%C3%A9lib-app-officielle/id577807727"
+          : "https://play.google.com/store/apps/details?id=com.paris.velib&hl=fr";
+      };
+      Linking.openURL(url());
+    } else if (bikeType === "lime") {
+      const url = () => {
+        return Platform.OS === "ios"
+          ? "https://apps.apple.com/us/app/lime-ridegreen/id1199780189"
+          : "https://play.google.com/store/apps/details?id=com.limebike&hl=fr";
+      };
+      Linking.openURL(url());
+    } else if (bikeType === "dott") {
+      const url = () => {
+        return Platform.OS === "ios"
+          ? "https://apps.apple.com/be/app/dott-unlock-your-city/id1440301673"
+          : "https://play.google.com/store/apps/details?id=com.ridedott.rider&hl=fr";
+      };
+      Linking.openURL(url());
+    } else if (bikeType === "tier") {
+      const url = () => {
+        return Platform.OS === "ios"
+          ? "https://apps.apple.com/fr/app/tier-move-better/id1436140272"
+          : "https://play.google.com/store/apps/details?id=com.tier.app&hl=en&gl=US";
+      };
+      Linking.openURL(url());
+    }
+  };
 
-    return (
-        <View>
-            {/*Créer la balise Modal avec propriété visible passée avec la props modalVisible*/}
-            <Modal
-                style={styles.modalContainer}
-                visible={modalVisible}
-                animationType="fade"
-                transparent={true}
-            >
-                <View style={styles.blocko}>
-                    <TouchableOpacity>
-                        <FontAwesome
-                            style={styles.closeBtn}
-                            name="close"
-                            size={30}
-                            //Faire passer en inverse data flow la valeur (true ou false) de la props closeModal
-                            onPress={() => closeModal()}
-                        />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                        style={styles.openAppBtn}
-                        onPress={() => openExternalApp()}
-                    >
-                        <Text>unlock and pay this bike !</Text>
-                    </TouchableOpacity>
-                </View>
-            </Modal>
+  return (
+    <View styles={styles.Screen}>
+      {/*Créer la balise Modal avec propriété visible passée avec la props modalVisible*/}
+      <Modal
+        style={styles.modalContainer}
+        visible={modalVisible}
+        animationType="fade"
+        transparent={true}
+      >
+        <View style={styles.blocko}>
+          <TouchableOpacity
+            style={styles.openAppBtn}
+            onPress={() => openExternalApp()}
+          >
+            <Text style={styles.txtBtn}>unlock & pay !</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.close} onPress={() => closeModal()}>
+            <Text style={styles.txtBtn}>Close</Text>
+          </TouchableOpacity>
         </View>
-    );
+      </Modal>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    modalContainer: {
-        justifyContent: "center",
-        alignItems: "center",
-        flex: 1,
-        backgroundColor: "red",
-        borderRadius: 20,
-    },
-    blocko: {
-        height: 200,
-        width: 120,
-        backgroundColor: "red",
-        justifyContent: "center",
-        alignItems: "center",
-    },
+  blocko: {
+    flex: 1,
+    justifyContent: "space-around",
+    alignItems: "center",
+    flexDirection: "row",
+    top: "58%",
+  },
 
-    closeBtn: {
-        zIndex: 99,
-        position: "absolute",
-        right: 10,
-    },
+  txtBtn: {
+    color: "#303F4A",
+    fontFamily: "monospace",
+    fontSize: 16,
+    textTransform: "uppercase",
+  },
 
-    openAppBtn: {
-        zIndex: 99,
-        position: "absolute",
-        bottom: 130,
-        left: 40,
-        // justifyContent: "center",
-        // alignItems: "center",
-        backgroundColor: "#C0DCF0",
-        borderRadius: 20,
-        width: "80%",
-        height: 30,
-    },
+  openAppBtn: {
+    color: "#C1DBF0",
+    textTransform: "uppercase",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#303F4A",
+    backgroundColor: "#C1DBF0",
+    shadowColor: "#303F4A",
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    width: "50%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 100,
+  },
+
+  close: {
+    color: "#303F4A",
+    textTransform: "uppercase",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#303F4A",
+    backgroundColor: "#C1DBF0",
+    shadowColor: "#303F4A",
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    width: "30%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 100,
+  },
 });

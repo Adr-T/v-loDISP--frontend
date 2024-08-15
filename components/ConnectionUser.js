@@ -10,17 +10,20 @@ import {
   Easing,
   KeyboardAvoidingView,
   Platform,
+  secureTextEntry,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import GoogleSignIn from "./GoogleSignin";
 import { login } from "../reducers/user";
+
+// déclaration de la variable d'environnement
+const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
 const ConnectionUser = ({ navigation, setModalVisible }) => {
   // Initialisation du hook dispatch pour envoyer des actions à Redux
   const dispatch = useDispatch();
   // Utilisation du hook useSelector pour accéder à l'état de l'utilisateur dans Redux
   const user = useSelector((state) => state.user.value);
-  // État pour gérer la visibilité du modal
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                                                                        //
@@ -81,7 +84,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
 
   // Fonction pour gérer la connexion de l'utilisateur
   const handleConnection = () => {
-    fetch("http://192.168.100.78:3000/users/signin", {
+    fetch(`${FRONTEND_ADDRESS}/users/signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -95,16 +98,14 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
           // Si la connexion réussit, envoyer les informations à Redux et réinitialiser les champs
           dispatch(
             login({
-              username: data.data.username,
+              username: signInUsername,
               token: data.data.token,
-              email: data.data.email,
             })
           );
+          navigation.navigate("TabNavigator", { screen: "Map" });
           setSignInUsername("");
           setSignInPassword("");
           setModalVisible(false);
-          // Navigation vers l'écran "Map"
-          navigation.navigate("TabNavigator", { screen: "Map" });
         } else {
           // Afficher une erreur si la connexion échoue
           setError(true);
@@ -129,6 +130,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
           <TextInput
             placeholder="Password"
             placeholderTextColor="#303F4A"
+            secureTextEntry={true}
             style={styles.input}
             onChangeText={(value) => setSignInPassword(value)}
             value={signInPassword}
@@ -188,7 +190,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
       return;
     }
 
-    fetch("http://192.168.100.78:3000/users/signup", {
+    fetch(`${FRONTEND_ADDRESS}/users/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -199,20 +201,21 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log(data);
         if (data.result) {
           // Si l'inscription réussit, envoyer les informations à Redux et réinitialiser les champs
           dispatch(
             login({
-              username: data.data.username,
+              email: signUpEmail,
+              username: signUpUsername,
               token: data.data.token,
-              email: data.data.email,
             })
           );
-          // Navigation vers l'écran "Map"
           setSignUpEmail("");
           setSignUpUsername("");
           setSignUpPassword("");
           setModalVisible(false);
+          // Navigation vers l'écran "Map"
           navigation.navigate("TabNavigator", { screen: "Map" });
         } else if (data.source === "user") {
           // Afficher une erreur si le nom d'utilisateur existe déjà
@@ -257,6 +260,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
           <TextInput
             placeholder="Password"
             placeholderTextColor="#303F4A"
+            secureTextEntry={true}
             style={styles.input}
             onChangeText={(value) => setSignUpPassword(value)}
             value={signUpPassword}
