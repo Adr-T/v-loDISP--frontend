@@ -1,6 +1,9 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
 
+// librairie qui convertir la date
+import { format } from "date-fns";
+
 import { useEffect, useState } from "react";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useSelector } from "react-redux";
@@ -83,7 +86,7 @@ export default function HistoricScreen() {
                             date: {format(el.date, "MM/dd/yyyy")}
                         </Text>
                         <Text style={styles.text}>
-                            note: {strUcFirst(el.note)}
+                            note: {el.note[0].toUpperCase() + el.note.slice(1)}
                         </Text>
                     </View>
                 </View>
