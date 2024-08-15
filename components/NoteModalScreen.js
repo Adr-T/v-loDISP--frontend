@@ -4,6 +4,7 @@ import Modal from "react-native-modal";
 // import AntIcon from "react-native-vector-icons/AntDesign";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
+import { useSelector } from "react-redux";
 
 const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 
@@ -20,9 +21,9 @@ export default function NoteModalScreen({
     // affichage des star
     // const [afficheStar, setAfficheStar] = useState(null);
     // pour calculer l'index ou on a clické
-    const handleStarPress = (starIndex) => {
-        setRating(starIndex + 1);
-    };
+    // const handleStarPress = (starIndex) => {
+    //     setRating(starIndex + 1);
+    // };
 
     // const renderStars = () => {
     //   const stars = [];
@@ -45,6 +46,9 @@ export default function NoteModalScreen({
     // useEffect(() => {
     //   renderStars();
     // }, [rating]);
+
+    const token = useSelector((state) => state.user.value.token);
+
     useEffect(() => {
         fetch(`${FRONTEND_ADDRESS}/stats`, {
             method: "POST",
@@ -52,6 +56,7 @@ export default function NoteModalScreen({
             body: JSON.stringify({
                 // noteVelo: noteVelo,
                 noteRide: noteRide,
+                token: token,
             }),
         }).then((response) => response.json());
     }, [noteRide]);
