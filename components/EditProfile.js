@@ -194,14 +194,22 @@ export default function EditProfile({ navigation }) {
         navigation.navigate("Home");
     };
 
+    // fonction utilisant useSelector pour lire le token de l'utilisateur depuis le reducer
+    const token = useSelector((state) => state.user.value.token);
+
     const handleDelete = () => {
-        fetch(`${FRONTEND_ADDRESS}/users/delete`, {
-            method: "Delete",
-        })
-            .then((response) => response.json())
-            .then(() => {
-                navigation.navigate("Home");
-            });
+        token &&
+            fetch(`${FRONTEND_ADDRESS}/users/delete`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    token: token,
+                }),
+            })
+                .then((response) => response.json())
+                .then(() => {
+                    navigation.navigate("Home");
+                });
     };
 
     return (

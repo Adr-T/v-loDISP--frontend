@@ -72,7 +72,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
             mapRef.current.getCamera().then((camera) => {
                 const { center } = camera;
                 //appliquer à la fonction fetchBikes les arguments de latitude et longitude récupérés
-                fetchBikes(center.latitude, center.longitude);
+                fetchBikes(center?.latitude, center?.longitude);
             });
         }
     };
@@ -103,12 +103,12 @@ const MapScreen = ({ navigation, mapStyle }) => {
                         (zoomDistance /
                             (earthRadius *
                                 Math.cos(
-                                    (Math.PI * location.coords.latitude) / 180
+                                    (Math.PI * location?.coords?.latitude) / 180
                                 ))) *
                         (180 / Math.PI); // Est ajusté en fonction de la latitude actuelle de l'utilisateur
                     setRegion({
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
+                        latitude: location?.coords?.latitude || 0.0,
+                        longitude: location?.coords?.longitude || 0.0,
                         latitudeDelta: latitudeDelta,
                         longitudeDelta: longitudeDelta,
                     });
@@ -194,17 +194,10 @@ const MapScreen = ({ navigation, mapStyle }) => {
 
     // Fonction pour recentrer sur la position actuelle
     const centerOnUserLocation = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-            console.error("Permission to access location was denied");
-            return;
-        }
-
-        let location = await Location.getCurrentPositionAsync({});
         mapRef.current.animateToRegion(
             {
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude,
+                latitude: region?.latitude || 0.0,
+                longitude: region?.longitude || 0.0,
                 latitudeDelta: 0.005,
                 longitudeDelta: 0.005,
             },
@@ -229,13 +222,13 @@ const MapScreen = ({ navigation, mapStyle }) => {
     // console.log(region.latitude);
     useEffect(() => {
         async function fetchData() {
-            const latitude = await region.latitude;
-            const longitude = await region.longitude;
+            const latitude = region?.latitude || 0.0;
+            const longitude = region?.longitude || 0.0;
             if (
                 latitude &&
                 longitude &&
-                destination.latitude &&
-                destination.longitude
+                destination?.latitude &&
+                destination?.longitude
             ) {
                 const dist = geolib.getDistance(
                     // la location ou on est
@@ -245,10 +238,10 @@ const MapScreen = ({ navigation, mapStyle }) => {
                     },
                     // location ou on va
                     {
-                        latitude: destination.latitude
+                        latitude: destination?.latitude
                             ? destination.latitude
                             : e.nativeEvent.coordinate,
-                        longitude: destination.longitude
+                        longitude: destination?.longitude
                             ? destination.longitude
                             : e.nativeEvent.coordinate,
                     }
@@ -360,27 +353,31 @@ const MapScreen = ({ navigation, mapStyle }) => {
         if (company === "velib") {
             for (const bike of velib) {
                 let coordinates = {
-                    latitude: bike.latitude,
-                    longitude: bike.longitude,
+                    latitude: bike?.latitude,
+                    longitude: bike?.longitude,
                 };
 
                 allBikes.push(
                     <Marker
                         coordinate={coordinates}
-                        key={bike.bikeId}
+                        key={bike.stationId}
                         onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
+                        style={{
+                            display: visibleCompanies.some((e) => company === e)
+                                ? "flex"
+                                : "none",
+                        }}
                     >
                         <Bike
                             key={bike.stationId}
-                            coords={coordinates}
                             bikeType={company}
-                            isVisible={
-                                visibleCompanies.length === 0
-                                    ? true
-                                    : visibleCompanies.some(
-                                          (e) => company === e
-                                      )
-                            }
+                            // isVisible={
+                            //     visibleCompanies.length === 0
+                            //         ? true
+                            //         : visibleCompanies.some(
+                            //               (e) => company === e
+                            //           )
+                            // }
                             //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non pour l'utiliser et adapter la taille de l'icône)
                             isSelected={
                                 bike.latitude === selectedCoords?.latitude &&
@@ -408,18 +405,23 @@ const MapScreen = ({ navigation, mapStyle }) => {
                         key={bike.bikeId}
                         coordinate={coordinates}
                         onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
+                        style={{
+                            display: visibleCompanies.some((e) => company === e)
+                                ? "flex"
+                                : "none",
+                        }}
                     >
                         <Bike
                             key={bike.bikeId}
-                            coords={coordinates}
+                            // coords={coordinates}
                             bikeType={company}
-                            isVisible={
-                                visibleCompanies.length === 0
-                                    ? true
-                                    : visibleCompanies.some(
-                                          (e) => company === e
-                                      )
-                            }
+                            // isVisible={
+                            //     visibleCompanies.length === 0
+                            //         ? true
+                            //         : visibleCompanies.some(
+                            //               (e) => company === e
+                            //           )
+                            // }
                             isSelected={
                                 bike.latitude === selectedCoords?.latitude &&
                                 bike.longitude === selectedCoords?.longitude
@@ -896,6 +898,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
     },
+
     modalView: {
         height: "100%",
         width: "40%",
