@@ -718,10 +718,12 @@ export default function MapScreen({ route }) {
             />
             {showHiddenBtn && (
                 <TouchableOpacity
-                    style={styles.hiddenBtn}
+                    style={styles.clearRouteBtn}
                     size={30}
                     onPress={() => resetRoute()}
-                ></TouchableOpacity>
+                >
+                    <Text style={styles.txtClearRouteBtn}>Clear Route</Text>
+                </TouchableOpacity>
             )}
         </View>
     );
@@ -859,20 +861,23 @@ const styles = StyleSheet.create({
         top: 20,
         right: 20,
     },
-    hiddenBtn: {
-        width: 50,
+    clearRouteBtn: {
+        width: 110,
         height: 50,
         borderRadius: 50,
-        backgroundColor: "transparent",
-        borderWidth: 2,
-        borderColor: "red",
+        backgroundColor: "#719DBD",
         position: "absolute",
-        bottom: -10,
-        left: 160,
+        bottom: 81,
+        left: 150,
         justifyContent: "center",
         alignItems: "center",
-        zIndex: 10,
+        zIndex: 100,
         elevation: 10,
+    },
+    txtClearRouteBtn: {
+        color: "#C1DBF0",
+        fontSize: 16,
+        fontWeight: "bold",
     },
 });
 
