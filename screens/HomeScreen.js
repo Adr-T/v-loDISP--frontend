@@ -135,7 +135,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 0,
     width: "50%",
-    // marginVertical: 35,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -152,12 +151,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     left: 25,
-    // height: "100%",
-    // width: "80%",
-    // marginTopTop: "5%",
-    // flex: 0.1,
-    // flexDirection: "row",
-    // alignItems: "flex-end",
   },
 
   modalBackground: {

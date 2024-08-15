@@ -5,12 +5,9 @@ import {
   Modal,
   TouchableOpacity,
   Platform,
-  TouchableWithoutFeedback,
 } from "react-native";
 import React from "react";
-import { useState, useEffect } from "react";
 import { Linking } from "react-native";
-import FontAwesome from "react-native-vector-icons/FontAwesome";
 
 //Créer un composant BikeModal avec 3 propriétés en argument
 export default function BikeModal({ modalVisible, closeModal, bikeType }) {
