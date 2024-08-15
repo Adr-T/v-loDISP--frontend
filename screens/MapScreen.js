@@ -878,7 +878,24 @@ const styles = StyleSheet.create({
         position: "absolute",
         bottom: 180,
     },
-
+    clearRouteBtn: {
+        width: 110,
+        height: 50,
+        borderRadius: 50,
+        backgroundColor: "#719DBD",
+        position: "absolute",
+        bottom: 81,
+        left: 150,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 100,
+        elevation: 10,
+    },
+    txtClearRouteBtn: {
+        color: "#C1DBF0",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
     modalView: {
         height: "100%",
         width: "40%",
