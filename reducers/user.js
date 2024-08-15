@@ -6,7 +6,6 @@ const initialState = {
     username: null,
     email: null,
     isConnected: false,
-    stat: [],
   },
 };
 
@@ -18,7 +17,7 @@ export const userSlice = createSlice({
       state.value.token = action.payload.token;
       state.value.username = action.payload.username;
       state.value.email = action.payload.email;
-      state.value.stat.push(action.payload.statData);
+
       // console.log(action.payload.statData);
 
       // state.value.isConnected = true;

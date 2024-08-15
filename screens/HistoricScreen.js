@@ -9,19 +9,19 @@ import { useSelector } from "react-redux";
 
 export default function HistoricScreen() {
   // variable declarer avec useSelector pour recuperer token de lutilisateur depuis recuer
-  const reduce = useSelector((state) => state.user.value);
+  const token = useSelector((state) => state.user.value.token);
   const [statData, setStatData] = useState([]);
 
   // variable pour recuperer les donee
   const [data, setData] = useState(null);
   useEffect(() => {
     // fetch pour recuperer les donné
-    reduce.token &&
+    token &&
       fetch("http://192.168.100.78:3000/rides/historique", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token: reduce.token,
+          token: token,
         }),
       })
         .then((response) => response.json())
@@ -33,21 +33,25 @@ export default function HistoricScreen() {
         });
   }, []);
   useEffect(() => {
-    reduce.token &&
-      fetch(`http://192.168.100.78:3000/stats/${reduce.token}`)
+    token &&
+      fetch(`http://192.168.100.78:3000/stats/${token}`)
         .then((response) => response.json())
         .then((data) => {
           // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
           setStatData(data.stat.stats);
         });
-  }, [reduce.token]);
+  }, [token]);
   let array = [];
-  if (statData) {
+
+  if (statData && data) {
     statData.map((e) => {
       array.push(e.noteRide);
     });
-    console.log(...array, ...data);
+    for (let i = 0; i < data.length; i++) {
+      data[i].note = array[i];
+    }
   }
+
   // on utilise une variable pour afficher a la fin les element retourne apres d'avoir utiliser le map sur la data q'on  a recu
   const historique =
     data &&
@@ -64,6 +68,7 @@ export default function HistoricScreen() {
             <Text style={styles.text}>
               date: {format(el.date, "MM/dd/yyyy")}
             </Text>
+            <Text style={styles.text}>note: {strUcFirst(el.note)}</Text>
           </View>
         </View>
       );

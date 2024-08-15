@@ -4,8 +4,8 @@ import Modal from "react-native-modal";
 // import AntIcon from "react-native-vector-icons/AntDesign";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import Entypo from "react-native-vector-icons/Entypo";
-import { useSelector, useDispatch } from "react-redux";
-import { login } from "../reducers/user";
+import { useSelector } from "react-redux";
+
 export default function NoteModalScreen({
   NoteModalVisible,
   setNoteModalVisible,
@@ -20,9 +20,9 @@ export default function NoteModalScreen({
   // const [afficheStar, setAfficheStar] = useState(null);
   // pour calculer l'index ou on a clické
 
-  const handleStarPress = (starIndex) => {
-    setRating(starIndex + 1);
-  };
+  // const handleStarPress = (starIndex) => {
+  //   setRating(starIndex + 1);
+  // };
 
   // const renderStars = () => {
   //   const stars = [];
@@ -45,7 +45,7 @@ export default function NoteModalScreen({
   // useEffect(() => {
   //   renderStars();
   // }, [rating]);
-  const dispatch = useDispatch();
+
   const token = useSelector((state) => state.user.value.token);
   useEffect(() => {
     fetch(`http://192.168.100.78:3000/stats`, {
@@ -56,15 +56,7 @@ export default function NoteModalScreen({
         noteRide: noteRide,
         token: token,
       }),
-    })
-      .then((response) => response.json())
-      .then((d) => {
-        dispatch(
-          login({
-            statData: d.stat.stats,
-          })
-        );
-      });
+    }).then((response) => response.json());
   }, [noteRide]);
 
   const handleClick = (emoji) => {
