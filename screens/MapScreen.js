@@ -6,13 +6,17 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
+  Platform,
+  TouchableWithoutFeedback,
+  screenWidth,
 } from "react-native";
-import MapView, {
+import {
   Marker,
   Polyline,
   PROVIDER_GOOGLE,
   PROVIDER_DEFAULT,
 } from "react-native-maps";
+import MapView from "react-native-map-clustering";
 import MapViewDirections from "react-native-maps-directions";
 import * as Location from "expo-location";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -154,6 +158,10 @@ const MapScreen = ({ navigation, mapStyle }) => {
   // redirection vers google maps méthode linking/deeplink
   const openGoogleMaps = () => {
     if (origin && destination) {
+      // const url = Platform.select({
+      //   ios: `comgooglemaps://?saddr=${origin.latitude},${origin.longitude}&daddr=${destination.latitude},${destination.longitude}&directionsmode=bicycling`,
+      //   android: `google.navigation:q=${destination.latitude},${destination.longitude}&travelmode=bicycling`,
+      // });
       const url = `https://www.google.com/maps/dir/?api=1&origin=${origin.latitude},${origin.longitude}&destination=${destination.latitude},${destination.longitude}&travelmode=bicycling`;
       Linking.openURL(url);
     }
@@ -258,6 +266,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
 
   //afficher la modale onPress sur l'icône d'un vélo
   const handlePressBike = (company, coords = null) => {
+    console.log("coucou");
     //type de vélo passé en argument de la fonction
     setBikeModalVisible(true); //passer la modale à visible
     setSelectedBikeType(company); //stocker le type de vélo
@@ -268,7 +277,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
   const fetchBikes = (newLat, newLon) => {
     //Si les arguments sont passés, ils sont pris en compte par le fetch, sinon la position de l'utilisateur est prise en compte
     fetch(
-      `http://192.168.100.237:3000/bikes/${newLat ? newLat : region.latitude}/${
+      `${FRONTEND_ADDRESS}/bikes/${newLat ? newLat : region.latitude}/${
         newLon ? newLon : region.longitude
       }`
     )
@@ -314,22 +323,27 @@ const MapScreen = ({ navigation, mapStyle }) => {
         };
 
         allBikes.push(
-          <Bike
-            key={bike.stationId}
-            coords={coordinates}
-            bikeType={company}
-            isVisible={
-              visibleCompanies.length === 0
-                ? true
-                : visibleCompanies.some((e) => company === e)
-            }
-            //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non pour l'utiliser et adapter la taille de l'icône)
-            isSelected={
-              bike.latitude === selectedCoords?.latitude &&
-              bike.longitude === selectedCoords?.longitude
-            }
+          <Marker
+            coordinate={coordinates}
+            key={bike.bikeId}
             onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
-          />
+          >
+            <Bike
+              key={bike.stationId}
+              coords={coordinates}
+              bikeType={company}
+              isVisible={
+                visibleCompanies.length === 0
+                  ? true
+                  : visibleCompanies.some((e) => company === e)
+              }
+              //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non pour l'utiliser et adapter la taille de l'icône)
+              isSelected={
+                bike.latitude === selectedCoords?.latitude &&
+                bike.longitude === selectedCoords?.longitude
+              }
+            />
+          </Marker>
         );
       }
       allFilters.push(
@@ -346,21 +360,26 @@ const MapScreen = ({ navigation, mapStyle }) => {
           longitude: bike.longitude,
         };
         allBikes.push(
-          <Bike
+          <Marker
             key={bike.bikeId}
-            coords={coordinates}
-            bikeType={company}
-            isVisible={
-              visibleCompanies.length === 0
-                ? true
-                : visibleCompanies.some((e) => company === e)
-            }
-            isSelected={
-              bike.latitude === selectedCoords?.latitude &&
-              bike.longitude === selectedCoords?.longitude
-            }
+            coordinate={coordinates}
             onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
-          />
+          >
+            <Bike
+              key={bike.bikeId}
+              coords={coordinates}
+              bikeType={company}
+              isVisible={
+                visibleCompanies.length === 0
+                  ? true
+                  : visibleCompanies.some((e) => company === e)
+              }
+              isSelected={
+                bike.latitude === selectedCoords?.latitude &&
+                bike.longitude === selectedCoords?.longitude
+              }
+            />
+          </Marker>
         );
       }
       allFilters.push(
@@ -479,6 +498,17 @@ const MapScreen = ({ navigation, mapStyle }) => {
             rotateEnabled={true} // Désactiver l'orientation par défaut
             showsCompass={false} // Désactiver l'icône de la boussole
             onLongPress={handleMapPress} // Appelée lorsque l'utilisateur appuie longtemps sur la carte
+            // clusterColor={
+            //   company === "velib"
+            //     ? "#2280F5"
+            //     : "lime"
+            //     ? "#07D603"
+            //     : "dott"
+            //     ? "#1AABEB"
+            //     : "tier"
+            //     ? "#172156"
+            //     : ""
+            // }
           >
             {allBikes}
             {origin && (
@@ -515,25 +545,25 @@ const MapScreen = ({ navigation, mapStyle }) => {
             <FontAwesome name="compass" size={24} color="#fff" />
           </TouchableOpacity>
           <Modal animationType="fade" transparent={true} visible={modalEdit}>
-            <View style={styles.modalBackground}>
-              <View style={styles.modalView}>
-                <TouchableOpacity style={styles.btnBack}>
-                  <FontAwesome
+            <TouchableWithoutFeedback onPress={() => setModalEdit(false)}>
+              <View style={styles.modalBackground}>
+                <View style={styles.modalView}>
+                  <TouchableOpacity
+                    style={styles.btnBack}
                     onPress={() => {
                       setModalEdit(false);
                     }}
-                    name="backward"
-                    size={20}
-                    color="#FFFFFF"
-                  />
-                </TouchableOpacity>
-                {user.isConnected ? (
-                  <EditProfile navigation={navigation} />
-                ) : (
-                  <EditProfileBlank navigation={navigation} />
-                )}
+                  >
+                    <Text style={styles.cross}>x</Text>
+                  </TouchableOpacity>
+                  {user.isConnected ? (
+                    <EditProfile navigation={navigation} />
+                  ) : (
+                    <EditProfileBlank navigation={navigation} />
+                  )}
+                </View>
               </View>
-            </View>
+            </TouchableWithoutFeedback>
           </Modal>
 
           {/* Container pour les champs de saisie */}
@@ -602,6 +632,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
               origin={origin} // Point de départ
               destination={destination} // Point d'arrivée
               apikey={GOOGLE_MAPS_APIKEY}
+              mode="BICYCLING"
               strokeWidth={3}
               strokeColor="#37678A"
               onReady={handleDirectionsReady}
@@ -687,11 +718,11 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: "#303F4A",
     width: "100%",
-    height: "10%",
-    borderRadius: 10,
+    height: "12%",
     alignItems: "center",
     justifyContent: "space-around",
     flexDirection: "row",
+    top: 10,
   },
 
   txtdirections: {
@@ -764,17 +795,22 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.8)",
     height: "90.25%",
   },
+  closeModal: {},
   btnBack: {
     position: "absolute",
     zIndex: 99,
     top: 45,
     right: -20,
   },
+  cross: {
+    color: "#fff",
+    fontSize: 20,
+  },
   user: {
     position: "absolute",
     top: 20,
-    right: 20,
+    right: 35,
   },
 });
 
-// export default MapScreen;
+export default MapScreen;

@@ -65,15 +65,8 @@ export default function BikeModal({ modalVisible, closeModal, bikeType }) {
           >
             <Text style={styles.txtBtn}>unlock & pay !</Text>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <FontAwesome
-              style={styles.closeBtn}
-              name="close"
-              size={20}
-              color="white"
-              //Faire passer en inverse data flow la valeur (true ou false) de la props closeModal
-              onPress={() => closeModal()}
-            />
+          <TouchableOpacity style={styles.close} onPress={() => closeModal()}>
+            <Text style={styles.txtBtn}>Close</Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -83,15 +76,11 @@ export default function BikeModal({ modalVisible, closeModal, bikeType }) {
 
 const styles = StyleSheet.create({
   blocko: {
-    height: "12%",
-    width: "100%",
-    backgroundColor: "#303F4A",
-    justifyContent: "space-evenly",
+    flex: 1,
+    justifyContent: "space-around",
     alignItems: "center",
-    top: "75%",
-    // borderRadius: 20,
     flexDirection: "row",
-    marginVertical: "95%",
+    top: "60%",
   },
 
   txtBtn: {
@@ -99,12 +88,6 @@ const styles = StyleSheet.create({
     fontFamily: "monospace",
     fontSize: 16,
     textTransform: "uppercase",
-  },
-
-  closeBtn: {
-    position: "absolute",
-    right: 18,
-    bottom: 18,
   },
 
   openAppBtn: {
@@ -121,6 +104,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 0,
     width: "50%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: 100,
+  },
+
+  close: {
+    color: "#FAFAFA",
+    textTransform: "uppercase",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#FAFAFA",
+    backgroundColor: "#303F4A",
+    shadowColor: "#FAFAFA",
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    width: "30%",
     alignItems: "center",
     justifyContent: "center",
     marginHorizontal: 100,

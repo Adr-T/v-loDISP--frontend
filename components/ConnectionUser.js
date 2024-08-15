@@ -10,6 +10,7 @@ import {
   Easing,
   KeyboardAvoidingView,
   Platform,
+  secureTextEntry,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import GoogleSignIn from "./GoogleSignin";
@@ -122,6 +123,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
           <TextInput
             placeholder="Password"
             placeholderTextColor="#303F4A"
+            secureTextEntry={true}
             style={styles.input}
             onChangeText={(value) => setSignInPassword(value)}
             value={signInPassword}
@@ -251,6 +253,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
           <TextInput
             placeholder="Password"
             placeholderTextColor="#303F4A"
+            secureTextEntry={true}
             style={styles.input}
             onChangeText={(value) => setSignUpPassword(value)}
             value={signUpPassword}
