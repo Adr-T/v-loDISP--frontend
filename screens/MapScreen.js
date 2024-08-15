@@ -301,7 +301,6 @@ const MapScreen = ({ navigation, mapStyle }) => {
 
     //afficher la modale onPress sur l'icône d'un vélo
     const handlePressBike = (company, coords = null) => {
-        console.log("coucou");
         //type de vélo passé en argument de la fonction
         setBikeModalVisible(true); //passer la modale à visible
         setSelectedBikeType(company); //stocker le type de vélo
@@ -371,13 +370,6 @@ const MapScreen = ({ navigation, mapStyle }) => {
                         <Bike
                             key={bike.stationId}
                             bikeType={company}
-                            // isVisible={
-                            //     visibleCompanies.length === 0
-                            //         ? true
-                            //         : visibleCompanies.some(
-                            //               (e) => company === e
-                            //           )
-                            // }
                             //Mise en place d'une propriété isSelected afin de la faire passer au composant Bike (qu'elle soit null ou non pour l'utiliser et adapter la taille de l'icône)
                             isSelected={
                                 bike.latitude === selectedCoords?.latitude &&
@@ -413,15 +405,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
                     >
                         <Bike
                             key={bike.bikeId}
-                            // coords={coordinates}
                             bikeType={company}
-                            // isVisible={
-                            //     visibleCompanies.length === 0
-                            //         ? true
-                            //         : visibleCompanies.some(
-                            //               (e) => company === e
-                            //           )
-                            // }
                             isSelected={
                                 bike.latitude === selectedCoords?.latitude &&
                                 bike.longitude === selectedCoords?.longitude
@@ -444,21 +428,25 @@ const MapScreen = ({ navigation, mapStyle }) => {
                     longitude: bike.longitude,
                 };
                 allBikes.push(
-                    <Bike
+                    <Marker
                         key={bike.bikeId}
-                        coords={coordinates}
-                        bikeType={company}
-                        isVisible={
-                            visibleCompanies.length === 0
-                                ? true
-                                : visibleCompanies.some((e) => company === e)
-                        }
-                        isSelected={
-                            bike.latitude === selectedCoords?.latitude &&
-                            bike.longitude === selectedCoords?.longitude
-                        }
+                        coordinate={coordinates}
                         onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
-                    />
+                        style={{
+                            display: visibleCompanies.some((e) => company === e)
+                                ? "flex"
+                                : "none",
+                        }}
+                    >
+                        <Bike
+                            key={bike.bikeId}
+                            bikeType={company}
+                            isSelected={
+                                bike.latitude === selectedCoords?.latitude &&
+                                bike.longitude === selectedCoords?.longitude
+                            }
+                        />
+                    </Marker>
                 );
             }
             allFilters.push(
@@ -475,21 +463,25 @@ const MapScreen = ({ navigation, mapStyle }) => {
                     longitude: bike.longitude,
                 };
                 allBikes.push(
-                    <Bike
+                    <Marker
                         key={bike.bikeId}
-                        coords={coordinates}
-                        bikeType={company}
-                        isVisible={
-                            visibleCompanies.length === 0
-                                ? true
-                                : visibleCompanies.some((e) => company === e)
-                        }
-                        isSelected={
-                            bike.latitude === selectedCoords?.latitude &&
-                            bike.longitude === selectedCoords?.longitude
-                        }
+                        coordinate={coordinates}
                         onPress={() => handlePressBike(company, coordinates)} //invoquer la fonction handlePressBike avec en arguments la marque et les coordonnées du vélo
-                    />
+                        style={{
+                            display: visibleCompanies.some((e) => company === e)
+                                ? "flex"
+                                : "none",
+                        }}
+                    >
+                        <Bike
+                            key={bike.bikeId}
+                            bikeType={company}
+                            isSelected={
+                                bike.latitude === selectedCoords?.latitude &&
+                                bike.longitude === selectedCoords?.longitude
+                            }
+                        />
+                    </Marker>
                 );
             }
             allFilters.push(
