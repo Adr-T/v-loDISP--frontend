@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import React from "react";
 
 // librairie qui convertir la date
@@ -68,22 +68,24 @@ export default function HistoricScreen() {
     data &&
     data.map((el, index) => {
       return (
-        <View style={styles.historiqueContainer} key={index}>
-          <View style={styles.iconContainer}>
-            <FontAwesome name="map-pin" size={25} color="white"></FontAwesome>
+        <ScrollView style={styles.scrollView} indicatorStyle="white">
+          <View style={styles.historiqueContainer} key={index}>
+            <View style={styles.iconContainer}>
+              <FontAwesome name="map-pin" size={25} color="white"></FontAwesome>
+            </View>
+            <View style={styles.adresseContainer}>
+              <Text style={styles.text}>Depart: {el.departure}</Text>
+              <Text style={styles.text}>arrival: {el.arrival}</Text>
+              <Text style={styles.text}>traveltime: {el.travelTime}</Text>
+              <Text style={styles.text}>
+                date: {format(el.date, "MM/dd/yyyy")}
+              </Text>
+              <Text style={styles.text}>
+                note: {el.note[0].toUpperCase() + el.note.slice(1)}
+              </Text>
+            </View>
           </View>
-          <View style={styles.adresseContainer}>
-            <Text style={styles.text}>Depart: {el.departure}</Text>
-            <Text style={styles.text}>arrival: {el.arrival}</Text>
-            <Text style={styles.text}>traveltime: {el.travelTime}</Text>
-            <Text style={styles.text}>
-              date: {format(el.date, "MM/dd/yyyy")}
-            </Text>
-            <Text style={styles.text}>
-              note: {el.note[0].toUpperCase() + el.note.slice(1)}
-            </Text>
-          </View>
-        </View>
+        </ScrollView>
       );
     });
   // on declare une variable pour pouvoir afficher le message si j'aimeis lutilisateur n'et pa conneecté

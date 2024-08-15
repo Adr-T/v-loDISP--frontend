@@ -8,7 +8,6 @@ import {
   Modal,
   Platform,
   TouchableWithoutFeedback,
-  screenWidth,
 } from "react-native";
 import {
   Marker,
@@ -523,6 +522,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
       {region && (
         <>
           <MapView
+            clusterColor="#37678A"
             ref={mapRef}
             style={styles.map}
             customMapStyle={mapStyle}
@@ -535,17 +535,6 @@ const MapScreen = ({ navigation, mapStyle }) => {
             rotateEnabled={true} // Désactiver l'orientation par défaut
             showsCompass={false} // Désactiver l'icône de la boussole
             onLongPress={handleMapPress} // Appelée lorsque l'utilisateur appuie longtemps sur la carte
-            // clusterColor={
-            //   company === "velib"
-            //     ? "#2280F5"
-            //     : "lime"
-            //     ? "#07D603"
-            //     : "dott"
-            //     ? "#1AABEB"
-            //     : "tier"
-            //     ? "#172156"
-            //     : ""
-            // }
           >
             {allBikes}
             {origin && (
@@ -565,21 +554,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
                 <Polyline
                   coordinates={routeCoordinates} // Tracer l'itinéraire sur la carte
                   strokeWidth={8}
-                  // fallback for when `strokeColors` is not supported by the map-provider
-                  strokeColors={[
-                    "#37678A",
-                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
-                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
-                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
-                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
-                    // "#B24112",
-                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
-                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
-                    // "#E5845C",
-                    // "#238C23",
-                    // "#7F0000",
-                    // "#7F0000",
-                  ]}
+                  strokeColors={["#37678A"]}
                 />
                 {/* ligne pour bordure */}
                 <Polyline
@@ -660,21 +635,13 @@ const MapScreen = ({ navigation, mapStyle }) => {
                 types: "geocode",
               }}
             />
-
-            {/* <Button
-                        style={styles.directionBtn}
-                        title="Get Directions"
-                        onPress={() => {
-                            handlePlaceSelect;
-                            }}
-                            /> */}
           </View>
           <View style={styles.filters}>
             <TouchableOpacity
               style={styles.refreshBikes}
               onPress={() => getCoordinates()}
             >
-              <FontAwesome name="refresh" size={20} />
+              <FontAwesome name="refresh" size={20} color="#fff" />
             </TouchableOpacity>
 
             <ScrollView
@@ -715,6 +682,11 @@ const MapScreen = ({ navigation, mapStyle }) => {
                 <Text style={styles.txtdirections}>Distance: {distance}</Text>
                 <Text style={styles.txtdirections}>Time: {duration}</Text>
               </View>
+              {showclearRouteBtn && (
+                <TouchableOpacity onPress={() => resetRoute()}>
+                  <Text style={styles.clearRouteBtn}>⊗</Text>
+                </TouchableOpacity>
+              )}
               <View style={styles.directionBtn}>
                 <TouchableOpacity onPress={openGoogleMaps}>
                   <FontAwesome
@@ -735,15 +707,6 @@ const MapScreen = ({ navigation, mapStyle }) => {
         closeModal={() => closeModal()}
         style={styles.bikeModal}
       />
-      {showclearRouteBtn && (
-        <TouchableOpacity
-          style={styles.clearRouteBtn}
-          size={30}
-          onPress={() => resetRoute()}
-        >
-          <Text style={styles.txtClearRouteBtn}>Clear Route</Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 };
@@ -774,19 +737,27 @@ const styles = StyleSheet.create({
   },
 
   locationButton: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
     position: "absolute",
     top: 250,
-    left: 20,
-    backgroundColor: "#37678A",
+    left: 15,
+    backgroundColor: "#303F4A",
     borderRadius: 100,
     padding: 5,
     elevation: 5,
   },
   northButton: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
     position: "absolute",
     top: 300,
-    left: 20,
-    backgroundColor: "#37678A",
+    left: 15,
+    backgroundColor: "#303F4A",
     borderRadius: 100,
     padding: 5,
     elevation: 5,
@@ -835,15 +806,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   refreshBikes: {
-    width: 25,
-    height: 25,
+    width: 30,
+    height: 30,
     borderRadius: 60,
     borderWidth: 2,
     borderColor: "#323232",
-    backgroundColor: "#fff",
+    backgroundColor: "#303F4A",
     justifyContent: "center",
     alignItems: "center",
-    marginHorizontal: 5,
+    marginHorizontal: 4,
   },
   bikeFiltersContainer: {
     flexDirection: "row",
@@ -855,22 +826,16 @@ const styles = StyleSheet.create({
     bottom: 180,
   },
   clearRouteBtn: {
-    width: 110,
-    height: 50,
-    borderRadius: 50,
-    backgroundColor: "#719DBD",
     position: "absolute",
-    bottom: 81,
-    left: 150,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 100,
-    elevation: 10,
-  },
-  txtClearRouteBtn: {
+    right: -50,
+    top: -29,
     color: "#C1DBF0",
-    fontSize: 16,
+    fontSize: 48,
     fontWeight: "bold",
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 3,
   },
 
   modalView: {

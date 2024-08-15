@@ -19,11 +19,6 @@ export default function BikeFilter(props) {
 }
 
 const styles = StyleSheet.create({
-  // btn: {
-  //     borderWidth: 1,
-  //     borderColor: "red",
-  //     width: 150,
-  // },
   velib: {
     backgroundColor: "#2280F5",
     borderRadius: 10,
