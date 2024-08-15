@@ -51,7 +51,7 @@ export default function HistoricScreen() {
     }, [token]);
     let array = [];
 
-    if (statData) {
+    if (statData && data) {
         statData.map((e) => {
             array.push(e.noteRide);
         });
