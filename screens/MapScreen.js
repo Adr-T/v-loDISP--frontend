@@ -804,6 +804,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     paddingHorizontal: 10,
+    paddingBottom: 10,
   },
   refreshBikes: {
     width: 30,
@@ -815,6 +816,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 4,
+    marginBottom: 10,
   },
   bikeFiltersContainer: {
     flexDirection: "row",
