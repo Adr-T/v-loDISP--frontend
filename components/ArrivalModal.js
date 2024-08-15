@@ -3,9 +3,7 @@ import React, { useState } from "react";
 import Modal from "react-native-modal";
 import AntIcon from "react-native-vector-icons/AntDesign";
 
-export default function ArrivalModal() {
-  const [isModalVisible, setModalVisible] = useState(true);
-
+export default function ArrivalModal({ setModalVisible, isModalVisible }) {
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
   };

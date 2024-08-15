@@ -10,7 +10,6 @@ import {
     Easing,
     KeyboardAvoidingView,
     Platform,
-    secureTextEntry,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import GoogleSignIn from "./GoogleSignin";
@@ -63,12 +62,10 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
     // Styles animés pour les côtés avant et arrière de la carte
     const frontAnimatedStyle = {
         transform: [{ rotateY: frontInterpolate }],
-        backfaceVisibility: "hidden", // Ajout de backfaceVisibility pour compatibilité android
     };
 
     const backAnimatedStyle = {
         transform: [{ rotateY: backInterpolate }],
-        backfaceVisibility: "hidden", // Ajout de backfaceVisibility pour compatibilité android
     };
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -359,13 +356,13 @@ const styles = StyleSheet.create({
     flipCardContainer: {
         width: 300,
         height: 350,
-        perspective: 1000, // Ajoute de la perspective pour l'effet de flip
+        perspective: 1000,
     },
     flipCard: {
         width: 300,
         height: 350,
         position: "absolute",
-        backfaceVisibility: "hidden", // Assure que le dos de la carte ne soit pas visible
+        backfaceVisibility: "hidden",
     },
     flipCardBack: {
         transform: [{ rotateY: "180deg" }],

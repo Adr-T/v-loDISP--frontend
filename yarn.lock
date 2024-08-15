@@ -2321,7 +2321,7 @@
     serve-static "^1.13.1"
     ws "^6.2.2"
 
-"@react-native-community/cli-tools@13.6.9":
+"@react-native-community/cli-tools@13.6.9", "@react-native-community/cli-tools@^13.6.9":
   version "13.6.9"
   resolved "https://registry.yarnpkg.com/@react-native-community/cli-tools/-/cli-tools-13.6.9.tgz#2baee279358ba1a863e737b2fa9f45659ad91929"
   integrity sha512-OXaSjoN0mZVw3nrAwcY1PC0uMfyTd9fz7Cy06dh+EJc+h0wikABsVRzV8cIOPrVV+PPEEXE0DBrH20T2puZzgQ==
@@ -2387,6 +2387,24 @@
   version "12.2.1"
   resolved "https://registry.yarnpkg.com/@react-native-google-signin/google-signin/-/google-signin-12.2.1.tgz#242247ab18ea7bb3a1dcabb50df7ad236f104294"
   integrity sha512-qt2Cb+bN2NS8BBT06M3UbLVS1gaSYTenNh4uZtPNmyJC23xZAynLkuhvsC6gmeEnxcj0wLVUn1Es+LSHw0OhVQ==
+
+"@react-native-vector-icons/common@^0.0.1-alpha.20":
+  version "0.0.1-alpha.20"
+  resolved "https://registry.yarnpkg.com/@react-native-vector-icons/common/-/common-0.0.1-alpha.20.tgz#5da4f9e06df69adb05ed9e1ae22d96e52992a5e5"
+  integrity sha512-jHAsGHqzSQIr/P8XLRxZ289NlWzeMM9JZ94A+rhOfznMiCdo1b1IkdkofQsvX2bF2D59UPaj3o+FUfR+T+tR+w==
+  dependencies:
+    "@react-native-community/cli-tools" "^13.6.9"
+    picocolors "^1.0.1"
+    plist "^3.1.0"
+    prop-types "^15.8.1"
+    yargs "^17.7.2"
+
+"@react-native-vector-icons/entypo@^1.0.1-alpha.25":
+  version "1.0.1-alpha.25"
+  resolved "https://registry.yarnpkg.com/@react-native-vector-icons/entypo/-/entypo-1.0.1-alpha.25.tgz#56069059868fb2205e8e09edd0b3a7685adde4c4"
+  integrity sha512-VhTu9bRH+Mq/xfc0RUzqx6lfi+vJpfFAJUWv8RzE6t4GxpDPxfylSFnMHGg9lw1mvDSbX+Ah0zvs00Rw+uaQ7w==
+  dependencies:
+    "@react-native-vector-icons/common" "^0.0.1-alpha.20"
 
 "@react-native/assets-registry@0.74.85":
   version "0.74.85"
