@@ -9,11 +9,11 @@ export default function Bike(props) {
       color={
         props.bikeType === "velib"
           ? "#2280F5"
-          : "lime"
+          : props.bikeType === "lime"
           ? "#07D603"
-          : "dott"
+          : props.bikeType === "dott"
           ? "#1AABEB"
-          : "tier"
+          : props.bikeType === "tier"
           ? "#172156"
           : ""
       }
