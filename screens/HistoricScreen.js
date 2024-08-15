@@ -37,6 +37,8 @@ export default function HistoricScreen() {
         .then((data) => {
           // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
           if (data.result) {
+            console.log(data.trajet);
+
             setData(data.trajet);
           }
         });
@@ -51,7 +53,7 @@ export default function HistoricScreen() {
           // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
           setStatData(data.stat.stats);
         });
-  }, [token]);
+  }, []);
   let array = [];
 
   if (statData && data) {
@@ -63,10 +65,14 @@ export default function HistoricScreen() {
     }
   }
 
+  console.log(data);
+
   // déclarer la fonction historique permettant d'afficher le trajet effectué
   const historique =
     data &&
     data.map((el, index) => {
+      console.log(el);
+
       return (
         <View style={styles.historiqueContainer} key={index}>
           <View style={styles.iconContainer}>
@@ -79,9 +85,14 @@ export default function HistoricScreen() {
             <Text style={styles.text}>
               date: {format(el.date, "MM/dd/yyyy")}
             </Text>
-            <Text style={styles.text}>
+            {el.note && (
+              <Text style={styles.text}>
+                note: {el.note[0].toUpperCase() + el.note.slice(1)}
+              </Text>
+            )}
+            {/* <Text style={styles.text}>
               note: {el.note[0].toUpperCase() + el.note.slice(1)}
-            </Text>
+            </Text> */}
           </View>
         </View>
       );
