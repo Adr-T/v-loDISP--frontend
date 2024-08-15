@@ -190,15 +190,21 @@ export default function EditProfile({ navigation }) {
     dispatch(logout());
     navigation.navigate("Home");
   };
-
+  const token = useSelector((state) => state.user.value.token);
   const handleDelete = () => {
-    fetch(`${FRONTEND_ADDRESS}/users/delete`, {
-      method: "Delete",
-    })
-      .then((response) => response.json())
-      .then(() => {
-        navigation.navigate("Home");
-      });
+    token &&
+      fetch(`${FRONTEND_ADDRESS}/users/delete`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: token,
+        }),
+      })
+        .then((response) => response.json())
+        .then(() => {
+          navigation.navigate("Home");
+          dispatch(logout());
+        });
   };
 
   return (
@@ -371,14 +377,14 @@ const styles = StyleSheet.create({
   },
 
   buttonDel: {
-    color: "red",
+    color: "#37678A",
     paddingVertical: 5,
     paddingHorizontal: 10,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "red",
-    backgroundColor: "#303F4A",
-    shadowColor: "red",
+    borderColor: "#37678A",
+    backgroundColor: "#C1DBF0",
+    shadowColor: "#37678A",
     shadowOffset: { width: 3, height: 3 },
     shadowOpacity: 1,
     shadowRadius: 0,
@@ -391,7 +397,7 @@ const styles = StyleSheet.create({
   buttonTxtDel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "red",
+    color: "#37678A",
   },
 
   title: {

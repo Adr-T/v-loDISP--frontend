@@ -5,6 +5,7 @@ import {
   Modal,
   TouchableOpacity,
   Platform,
+  TouchableWithoutFeedback,
 } from "react-native";
 import React from "react";
 import { useState, useEffect } from "react";
@@ -80,26 +81,26 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     alignItems: "center",
     flexDirection: "row",
-    top: "60%",
+    top: "58%",
   },
 
   txtBtn: {
-    color: "#FAFAFA",
+    color: "#303F4A",
     fontFamily: "monospace",
     fontSize: 16,
     textTransform: "uppercase",
   },
 
   openAppBtn: {
-    color: "#FAFAFA",
+    color: "#C1DBF0",
     textTransform: "uppercase",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#FAFAFA",
-    backgroundColor: "#303F4A",
-    shadowColor: "#FAFAFA",
+    borderColor: "#303F4A",
+    backgroundColor: "#C1DBF0",
+    shadowColor: "#303F4A",
     shadowOffset: { width: 3, height: 3 },
     shadowOpacity: 1,
     shadowRadius: 0,
@@ -110,15 +111,15 @@ const styles = StyleSheet.create({
   },
 
   close: {
-    color: "#FAFAFA",
+    color: "#303F4A",
     textTransform: "uppercase",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#FAFAFA",
-    backgroundColor: "#303F4A",
-    shadowColor: "#FAFAFA",
+    borderColor: "#303F4A",
+    backgroundColor: "#C1DBF0",
+    shadowColor: "#303F4A",
     shadowOffset: { width: 3, height: 3 },
     shadowOpacity: 1,
     shadowRadius: 0,

@@ -8,7 +8,6 @@ import {
   Modal,
   Platform,
   TouchableWithoutFeedback,
-  screenWidth,
 } from "react-native";
 import {
   Marker,
@@ -266,7 +265,6 @@ const MapScreen = ({ navigation, mapStyle }) => {
 
   //afficher la modale onPress sur l'icône d'un vélo
   const handlePressBike = (company, coords = null) => {
-    console.log("coucou");
     //type de vélo passé en argument de la fonction
     setBikeModalVisible(true); //passer la modale à visible
     setSelectedBikeType(company); //stocker le type de vélo
@@ -524,10 +522,31 @@ const MapScreen = ({ navigation, mapStyle }) => {
 
             {routeCoordinates.length > 0 && (
               <>
+                {/* ligne principale */}
+                <Polyline
+                  coordinates={routeCoordinates} // Tracer l'itinéraire sur la carte
+                  strokeWidth={8}
+                  // fallback for when `strokeColors` is not supported by the map-provider
+                  strokeColors={[
+                    "#37678A",
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#B24112",
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#00000000", // no color, creates a "long" gradient between the previous and next coordinate
+                    // "#E5845C",
+                    // "#238C23",
+                    // "#7F0000",
+                    // "#7F0000",
+                  ]}
+                />
+                {/* ligne pour bordure */}
                 <Polyline
                   coordinates={routeCoordinates} // Tracer l'itinéraire sur la carte
                   strokeWidth={6}
-                  strokeColor="#37678A"
+                  strokeColor="#C1DBF0"
                 />
               </>
             )}
@@ -795,7 +814,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.8)",
     height: "90.25%",
   },
-  closeModal: {},
+
   btnBack: {
     position: "absolute",
     zIndex: 99,

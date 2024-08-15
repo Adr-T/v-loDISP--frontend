@@ -1,6 +1,7 @@
 import { Marker } from "react-native-maps";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 import { useState } from "react";
+import { StyleSheet } from "react-native";
 import { useSelector } from "react-redux";
 
 export default function Bike(props) {
@@ -13,6 +14,7 @@ export default function Bike(props) {
     //   //   onPress={() => console.log("coucou")}
     // >
     <FontAwesome
+      style={styles.bikes}
       name="bicycle"
       color={
         props.bikeType === "velib"
@@ -30,3 +32,11 @@ export default function Bike(props) {
     // </Marker>
   );
 }
+const styles = StyleSheet.create({
+  bikes: {
+    shadowColor: "black",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 2,
+  },
+});
