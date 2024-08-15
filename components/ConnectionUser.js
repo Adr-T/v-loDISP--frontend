@@ -99,11 +99,14 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
                         login({
                             username: signInUsername,
                             token: data.data.token,
+                            email: data.data.email,
                         })
                     );
                     setSignInUsername("");
                     setSignInPassword("");
                     setModalVisible(false);
+                    // Navigation vers l'écran "Map"
+                    navigation.navigate("TabNavigator", { screen: "Map" });
                 } else {
                     // Afficher une erreur si la connexion échoue
                     setError(true);
@@ -208,12 +211,12 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
                             token: data.data.token,
                         })
                     );
-                    // Navigation vers l'écran "Map"
-                    navigation.navigate("TabNavigator", { screen: "Map" });
                     setSignUpEmail("");
                     setSignUpUsername("");
                     setSignUpPassword("");
                     setModalVisible(false);
+                    // Navigation vers l'écran "Map"
+                    navigation.navigate("TabNavigator", { screen: "Map" });
                 } else if (data.source === "user") {
                     // Afficher une erreur si le nom d'utilisateur existe déjà
                     setUsernameError(true);
