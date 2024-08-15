@@ -1,12 +1,10 @@
-import { Marker } from "react-native-maps";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-import { useState } from "react";
 import { StyleSheet } from "react-native";
-import { useSelector } from "react-redux";
 
 export default function Bike(props) {
   return (
     <FontAwesome
+      style={styles.bikes}
       name="bicycle"
       color={
         props.bikeType === "velib"
