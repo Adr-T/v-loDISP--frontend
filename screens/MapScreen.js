@@ -127,6 +127,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
     setSteps(result.legs[0].steps); // Définir les étapes du trajet
     setDistance(result.legs[0].distance.text); // Définir la distance du trajet
     setDuration(result.legs[0].duration.text); // Définir la durée du trajet
+
     if (mapRef.current) {
       // Ajuster la vue de la carte pour inclure toutes les coordonnées de l'itinéraire
       mapRef.current.fitToCoordinates(result.coordinates, {
@@ -242,20 +243,20 @@ const MapScreen = ({ navigation, mapStyle }) => {
               : e.nativeEvent.coordinate,
           }
         );
-        if (dist < 40) {
+        if (dist < 60) {
           setModalVisible(true);
           setTimeout(() => {
             setModalVisible(false);
-          }, 3000);
+          }, 1000);
           setTimeout(() => {
             setNoteModalVisible(true);
-          }, 4000);
+          }, 2000);
         }
         return;
       }
     }
     fetchData();
-  }, [duration]);
+  }, [region]);
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //                                                                                                                                                        //
@@ -307,7 +308,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
   const fetchBikes = (newLat, newLon) => {
     //Si les arguments sont passés, ils sont pris en compte par le fetch, sinon la position de l'utilisateur est prise en compte
     fetch(
-      `${FRONTEND_ADDRESS}/bikes/${newLat ? newLat : region.latitude}/${
+      `http://172.20.10.2:3000/bikes/${newLat ? newLat : region.latitude}/${
         newLon ? newLon : region.longitude
       }`
     )
@@ -502,7 +503,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
   useEffect(() => {
     if (origin && destination && duration) {
       token &&
-        fetch(`${FRONTEND_ADDRESS}/rides`, {
+        fetch(`http://172.20.10.2:3000/rides`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -674,6 +675,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
             <NoteModalScreen
               NoteModalVisible={NoteModalVisible}
               setNoteModalVisible={setNoteModalVisible}
+              region={region}
             />
           )}
           {steps.length > 0 && (

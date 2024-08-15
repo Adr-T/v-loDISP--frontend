@@ -83,7 +83,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
 
   // Fonction pour gérer la connexion de l'utilisateur
   const handleConnection = () => {
-    fetch(`${FRONTEND_ADDRESS}/users/signin`, {
+    fetch(`http://172.20.10.2:3000/users/signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -93,6 +93,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
     })
       .then((response) => response.json())
       .then((data) => {
+        console.log("ss");
         if (data.result) {
           // Si la connexion réussit, envoyer les informations à Redux et réinitialiser les champs
           dispatch(
@@ -189,7 +190,7 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
       return;
     }
 
-    fetch(`${FRONTEND_ADDRESS}/users/signup`, {
+    fetch(`http://172.20.10.2:3000/users/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -200,7 +201,6 @@ const ConnectionUser = ({ navigation, setModalVisible }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         if (data.result) {
           // Si l'inscription réussit, envoyer les informations à Redux et réinitialiser les champs
           dispatch(

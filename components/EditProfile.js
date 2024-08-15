@@ -133,7 +133,7 @@ export default function EditProfile({ navigation }) {
   const [newUsername, setNewUsername] = useState("");
 
   const handleNewUsername = () => {
-    fetch(`${FRONTEND_ADDRESS}/users/signin`, {
+    fetch(`http://172.20.10.2:3000/users/signin`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -195,7 +195,7 @@ export default function EditProfile({ navigation }) {
   const token = useSelector((state) => state.user.value.token);
   const handleDelete = () => {
     token &&
-      fetch(`${FRONTEND_ADDRESS}/users/delete`, {
+      fetch(`http://172.20.10.2:3000/users/delete`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

@@ -26,7 +26,7 @@ export default function HistoricScreen() {
   useEffect(() => {
     // fetch pour recuperer les donné
     token &&
-      fetch(`${FRONTEND_ADDRESS}/rides/historique`, {
+      fetch(`http://172.20.10.2:3000/rides/historique`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -37,23 +37,21 @@ export default function HistoricScreen() {
         .then((data) => {
           // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
           if (data.result) {
-            console.log(data.trajet);
-
             setData(data.trajet);
           }
         });
-  }, []);
+  }, [token]);
 
   // création d'un deuxième useEffect permettant de récupérer les notes des trajets
   useEffect(() => {
     token &&
-      fetch(`${FRONTEND_ADDRESS}/stats/${token}`)
+      fetch(`http://172.20.10.2:3000/stats/${token}`)
         .then((response) => response.json())
         .then((data) => {
           // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet
           setStatData(data.stat.stats);
         });
-  }, []);
+  }, [token]);
   let array = [];
 
   if (statData && data) {
@@ -65,35 +63,29 @@ export default function HistoricScreen() {
     }
   }
 
-  console.log(data);
-
   // déclarer la fonction historique permettant d'afficher le trajet effectué
   const historique =
     data &&
     data.map((el, index) => {
-      console.log(el);
-
       return (
-        <ScrollView style={styles.scrollView} indicatorStyle="white">
-          <View style={styles.historiqueContainer} key={index}>
-            <View style={styles.iconContainer}>
-              <FontAwesome name="map-pin" size={25} color="white"></FontAwesome>
-            </View>
-            <View style={styles.adresseContainer}>
-              <Text style={styles.text}>Depart: {el.departure}</Text>
-              <Text style={styles.text}>arrival: {el.arrival}</Text>
-              <Text style={styles.text}>traveltime: {el.travelTime}</Text>
-              <Text style={styles.text}>
-                date: {format(el.date, "MM/dd/yyyy")}
-              </Text>
-              {el.note && (
-                <Text style={styles.text}>
-                  note: {el.note[0].toUpperCase() + el.note.slice(1)}
-                </Text>
-              )}
-            </View>
+        <View style={styles.historiqueContainer} key={index}>
+          <View style={styles.iconContainer}>
+            <FontAwesome name="map-pin" size={25} color="white"></FontAwesome>
           </View>
-        </ScrollView>
+          <View style={styles.adresseContainer}>
+            <Text style={styles.text}>Depart: {el.departure}</Text>
+            <Text style={styles.text}>arrival: {el.arrival}</Text>
+            <Text style={styles.text}>traveltime: {el.travelTime}</Text>
+            <Text style={styles.text}>
+              date: {format(el.date, "MM/dd/yyyy")}
+            </Text>
+            {el.note && (
+              <Text style={styles.text}>
+                note: {el.note[0].toUpperCase() + el.note.slice(1)}
+              </Text>
+            )}
+          </View>
+        </View>
       );
     });
   // on declare une variable pour pouvoir afficher le message si j'aimeis lutilisateur n'et pa conneecté
@@ -106,7 +98,9 @@ export default function HistoricScreen() {
   );
   return (
     <View style={styles.container}>
-      <Text>{historique ? historique : user}</Text>
+      <ScrollView style={styles.scrollView} indicatorStyle="white">
+        <Text>{historique ? historique : user}</Text>
+      </ScrollView>
     </View>
   );
 }
@@ -147,5 +141,8 @@ const styles = StyleSheet.create({
     padding: 15,
     width: "100%",
     borderRadius: 15,
+  },
+  scrollView: {
+    paddingTop: 100,
   },
 });
