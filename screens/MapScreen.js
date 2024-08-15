@@ -60,7 +60,7 @@ export default function MapScreen({ route }) {
     const mapRef = useRef(null); // Référence pour la carte
     const [isModalVisible, setModalVisible] = useState(false); //on utilise pour afficher modal
     const [NoteModalVisible, setNoteModalVisible] = useState(false); //mise en place d'un état pour stocker temporairement la note donnée au trajet
-    const [showHiddenBtn, setShowHiddenButton] = useState(false); //mise en place d'un état pour afficher le bouton caché
+    const [showclearRouteBtn, setShowClearRouteBtn] = useState(false); //mise en place d'un état pour afficher le bouton caché
 
     // Mise en place d'un fonction getCoordinates permettant de récupérer la position sur laquelle la carte est centrée ainsi que rappeler le fetchBikes pour l'utiliser avec le bouton refresh bikes
     const getCoordinates = () => {
@@ -143,22 +143,23 @@ export default function MapScreen({ route }) {
         setSteps([]);
         setDistance("");
         setDuration("");
-        setShowHiddenButton(false); // Cache le bouton après réinitialisation
+        setDestination(null);
+        setShowClearRouteBtn(false); // Cache le bouton après réinitialisation
     };
 
-    // Gérer l'apparition du bouton caché lorsqu'un trajet est recherché en vérifiant les conditions du trajet
-    const handleHiddenBtn = () => {
+    // Gérer l'apparition du bouton clearRoute lorsqu'un trajet est recherché en vérifiant les conditions du trajet
+    const handleClearRouteBtn = () => {
         if (routeCoordinates && steps.length > 0 && distance && duration) {
-            setShowHiddenButton(true);
+            setShowClearRouteBtn(true);
         } else {
-            setShowHiddenButton(false); // Cache le bouton si les conditions ne sont pas remplies
+            setShowClearRouteBtn(false); // Cache le bouton si les conditions ne sont pas remplies
         }
     };
 
     // Utiliser useEffect pour surveiller les changements des états concernés
     useEffect(() => {
-        handleHiddenBtn();
-    }, [routeCoordinates, steps, distance, duration]); // Déclenche handleHiddenBtn lorsque ces états changent
+        handleClearRouteBtn();
+    }, [routeCoordinates, steps, distance, duration]); // Déclenche handleClearRouteBtn lorsque ces états changent
 
     // Gérer la sélection des lieux avec autocomplétion
     const handlePlaceSelect = (type, details) => {
@@ -716,7 +717,7 @@ export default function MapScreen({ route }) {
                 closeModal={() => closeModal()}
                 style={styles.bikeModal}
             />
-            {showHiddenBtn && (
+            {showclearRouteBtn && (
                 <TouchableOpacity
                     style={styles.clearRouteBtn}
                     size={30}

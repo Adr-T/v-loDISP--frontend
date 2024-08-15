@@ -65,7 +65,6 @@ export default function App() {
                     <Stack.Screen
                         name="TabNavigator"
                         component={TabNavigator}
-                        style={styles.tabNavIndex}
                     />
                 </Stack.Navigator>
             </NavigationContainer>
@@ -75,9 +74,5 @@ export default function App() {
 const styles = StyleSheet.create({
     tabContainer: {
         backgroundColor: "#303F4A",
-    },
-    tabNavIndex: {
-        zIndex: 1,
-        elevation: 1,
     },
 });
