@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Button, Platform, TouchableOpacity, StyleSheet } from "react-native";
+import { Platform, TouchableOpacity } from "react-native";
 import * as AuthSession from "expo-auth-session";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
 
