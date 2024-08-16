@@ -24,9 +24,10 @@ export default function HistoricScreen() {
 
   // création d'un useEffect permettant de récupérer l'historique des trajets
   useEffect(() => {
+    // console.log("token", token);
     // fetch pour recuperer les donné
     token &&
-      fetch(`http://172.20.10.2:3000/rides/historique`, {
+      fetch(`${process.env.EXPO_PUBLIC_FRONTEND_ADDRESS}/rides/historique`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -45,7 +46,7 @@ export default function HistoricScreen() {
   // création d'un deuxième useEffect permettant de récupérer les notes des trajets
   useEffect(() => {
     token &&
-      fetch(`http://172.20.10.2:3000/stats/${token}`)
+      fetch(`${process.env.EXPO_PUBLIC_FRONTEND_ADDRESS}/stats/${token}`)
         .then((response) => response.json())
         .then((data) => {
           // condition si on a la resultat true on vas le faire une methode map pour afficher le trajet

@@ -9,16 +9,14 @@ const FRONTEND_ADDRESS = process.env.EXPO_PUBLIC_FRONTEND_ADDRESS;
 export default function NoteModalScreen({
   NoteModalVisible,
   setNoteModalVisible,
-  region,
 }) {
   const [noteRide, setNoteRide] = useState("");
-  const [reload, setReload] = useState(false);
 
   const token = useSelector((state) => state.user.value.token);
 
   useEffect(() => {
     if (noteRide) {
-      fetch(`http://172.20.10.2:3000/stats`, {
+      fetch(`${process.env.EXPO_PUBLIC_FRONTEND_ADDRESS}/stats`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
 
@@ -38,7 +36,6 @@ export default function NoteModalScreen({
   }, [noteRide]);
 
   const handleClick = (emoji) => {
-    setReload(true);
     setNoteRide(emoji);
     setTimeout(() => {
       setNoteModalVisible(false);

@@ -31,7 +31,7 @@ export default function GoogleSignIn() {
   React.useEffect(() => {
     if (response?.type === "success") {
       const { authentication } = response; // Récupère les informations d'authentification
-      console.log(authentication);
+      // console.log(authentication);
     }
   }, [response]);
 

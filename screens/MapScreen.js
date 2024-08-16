@@ -308,9 +308,9 @@ const MapScreen = ({ navigation, mapStyle }) => {
   const fetchBikes = (newLat, newLon) => {
     //Si les arguments sont passés, ils sont pris en compte par le fetch, sinon la position de l'utilisateur est prise en compte
     fetch(
-      `http://172.20.10.2:3000/bikes/${newLat ? newLat : region.latitude}/${
-        newLon ? newLon : region.longitude
-      }`
+      `${process.env.EXPO_PUBLIC_FRONTEND_ADDRESS}/bikes/${
+        newLat ? newLat : region.latitude
+      }/${newLon ? newLon : region.longitude}`
     )
       .then((response) => response.json())
       .then((data) => {
@@ -503,7 +503,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
   useEffect(() => {
     if (origin && destination && duration) {
       token &&
-        fetch(`http://172.20.10.2:3000/rides`, {
+        fetch(`${process.env.EXPO_PUBLIC_FRONTEND_ADDRESS}/rides`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -590,7 +590,7 @@ const MapScreen = ({ navigation, mapStyle }) => {
                   >
                     <Text style={styles.cross}>x</Text>
                   </TouchableOpacity>
-                  {user.isConnected ? (
+                  {user.token ? (
                     <EditProfile navigation={navigation} />
                   ) : (
                     <EditProfileBlank navigation={navigation} />
@@ -675,7 +675,6 @@ const MapScreen = ({ navigation, mapStyle }) => {
             <NoteModalScreen
               NoteModalVisible={NoteModalVisible}
               setNoteModalVisible={setNoteModalVisible}
-              region={region}
             />
           )}
           {steps.length > 0 && (

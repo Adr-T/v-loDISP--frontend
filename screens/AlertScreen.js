@@ -11,12 +11,16 @@ export default function AlertScreen() {
 
   const [dataAlert, setDataAlert] = useState(null);
   useEffect(() => {
-    fetch(`http://172.20.10.2:3000/alerts`)
+    fetch(`${process.env.EXPO_PUBLIC_FRONTEND_ADDRESS}/alerts`)
       .then((response) => response.json())
       .then((data) => {
+        // console.log(data);
+
         setDataAlert(data.dataOriginal);
       });
   }, []);
+  console.error("error");
+
   // on boucle la data et on va mettre dans un variable pour afficher et retourner le resultat
   const afficheAlert =
     dataAlert &&
