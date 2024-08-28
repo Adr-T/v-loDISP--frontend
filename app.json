@@ -41,6 +41,17 @@
           "iosUrlScheme": "com.googleusercontent.apps._some_id_here_"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6dfda48b-5d58-4071-9257-cbcad7d4da3b"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6dfda48b-5d58-4071-9257-cbcad7d4da3b"
+    }
   }
 }

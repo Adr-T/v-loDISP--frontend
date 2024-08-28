@@ -28,6 +28,7 @@
     "expo-location": "^17.0.1",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
+    "expo-updates": "~0.25.24",
     "geolib": "^3.3.4",
     "native-base": "^3.4.28",
     "react": "18.2.0",
